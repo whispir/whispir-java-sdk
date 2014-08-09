@@ -27,8 +27,6 @@ public class WhispirAPITest {
 	
 	@Test
 	public void testBadAPIKey() {
-		whispirAPI = new WhispirAPI();
-		
 		whispirAPI.setApikey("1234");
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
@@ -39,9 +37,7 @@ public class WhispirAPITest {
 	}
 	
 	@Test
-	public void testBadUsername() {
-		whispirAPI = new WhispirAPI();
-		
+	public void testBadUsername() {		
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername("blahblahblah");
 		whispirAPI.setPassword(TEST_PASSWORD);
@@ -53,8 +49,6 @@ public class WhispirAPITest {
 	
 	@Test
 	public void testBadPassword() {
-		whispirAPI = new WhispirAPI();
-		
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword("blahblahblah");
@@ -95,12 +89,22 @@ public class WhispirAPITest {
 	}
 	
 	@Test
-	public void testGoodRecipient() {
+	public void testCompanyMessage() {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testWorkspaceMessage() {
+		whispirAPI.setApikey(TEST_API_KEY);
+		whispirAPI.setUsername(TEST_USERNAME);
+		whispirAPI.setPassword(TEST_PASSWORD);
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
 		assertTrue(response == 202);
 	}
 

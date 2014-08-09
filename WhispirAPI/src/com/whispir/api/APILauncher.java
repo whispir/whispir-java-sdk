@@ -15,10 +15,10 @@ public class APILauncher {
 	 */
 	public static void main(String[] args) {
 		
-		WhispirAPI whispirAPI = new WhispirAPI();
+		WhispirAPI whispirAPI = new WhispirAPI("4fcn8xkeherbdm5y5fpnat8g", "jordan.walsh", "12345678");
 
 		if (args.length < 3) {
-			System.out.println("Three String arguments are required.");
+			System.out.println("Six String arguments are required.");
 			System.out.println("1 - Phone Number. e.g. 0402859178");
 			System.out.println("2 - Subject. e.g. Hello World");
 			System.out.println("3 - Content. e.g. SMS is fun");

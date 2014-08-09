@@ -1,11 +1,13 @@
 package com.whispir.api;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -19,7 +21,8 @@ public class WhispirAPI {
 
 	private static final String WHISPIR_MESSAGE_HEADER = "application/vnd.whispir.message-v1+json";
 	private static final String API_HOST = "api.whispir.com";
-	private static final String API_URL = "https://api.whispir.com/messages?apikey=";
+	private static final String API_URL = "https://api.whispir.com/";
+	private static final String API_EXT = "?apikey=";
 	private String apikey;
 	private String username;
 	private String password;
@@ -36,7 +39,8 @@ public class WhispirAPI {
 		this.password = password;
 	}
 
-	public WhispirAPI() {}
+	@SuppressWarnings("unused")
+	private WhispirAPI() {}
 	
 	public WhispirAPI(String apikey, String username, String password) {
 		this.apikey = apikey;
@@ -103,7 +107,7 @@ public class WhispirAPI {
 					.put("subject", subject).put("body", sms)
 					.toString();
 
-			response = httpPost(myString);
+			response = httpPost(workspaceId, myString);
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -113,30 +117,23 @@ public class WhispirAPI {
 		
 		return response;
 	}
+	
+	private int httpPost(String workspace, String jsonContent) throws Exception {	
+		PostMethod method = (PostMethod)createMethod(workspace, jsonContent);
+		
+		return httpPost(method);
+	}
 
-	private int httpPost(String jsonContent) throws Exception {
+	private int httpPost(HttpMethod method) throws Exception {
 		String response = "";
 		int statusCode = 0;
 
 		// Create an instance of HttpClient.
 		HttpClient client = new HttpClient();
 
-		// Create a method instance.
-		PostMethod method = new PostMethod(API_URL + this.apikey);
-
 		client.getState().setCredentials(
 				new AuthScope(API_HOST, 443, null),
 				new UsernamePasswordCredentials(this.username, this.password));
-
-		method.setDoAuthentication(true);
-		
-		method.setRequestHeader("Content-Type", WHISPIR_MESSAGE_HEADER);
-		method.setRequestHeader("Accept", WHISPIR_MESSAGE_HEADER);
-
-		//method.setRequestBody(jsonContent);
-		
-		RequestEntity request = new StringRequestEntity(jsonContent, WHISPIR_MESSAGE_HEADER, null);
-		method.setRequestEntity(request);
 
 		try {
 			// Execute the method.
@@ -170,5 +167,27 @@ public class WhispirAPI {
 		}
 
 		return statusCode;
+	}
+	
+	private HttpMethod createMethod(String workspaceId, String content) throws UnsupportedEncodingException {
+		// Create a method instance.
+		String url = "";
+		
+		if(workspaceId != null && !"".equals(workspaceId)) {
+			url = API_URL + "workspaces/" + workspaceId + "/messages" + API_EXT + this.apikey;
+		} else {
+			url = API_URL + "messages" + API_EXT + this.apikey;
+		}
+		PostMethod method = new PostMethod(url);
+
+		method.setDoAuthentication(true);
+		
+		method.setRequestHeader("Content-Type", WHISPIR_MESSAGE_HEADER);
+		method.setRequestHeader("Accept", WHISPIR_MESSAGE_HEADER);
+		
+		RequestEntity request = new StringRequestEntity(content, WHISPIR_MESSAGE_HEADER, null);
+		method.setRequestEntity(request);
+		
+		return method;
 	}
 }
