@@ -12,6 +12,9 @@ public class APILauncher {
 	 * @param args
 	 *            [2] String - The Content of the message, or remainder of the
 	 *            SMS
+	 *            
+	 * @param args
+	 *            [3] String - The workspace id to be used to send the message
 	 */
 	public static void main(String[] args) {
 		
@@ -27,8 +30,12 @@ public class APILauncher {
 			final String recipient = args[0];
 			final String subject = args[1];
 			final String content = args[2];
-			final String workspace = args[3];
-
+			String workspace = "";
+			
+			if(args.length > 3) {
+				 workspace = args[3];
+			}
+			
 			int response = whispirAPI.sendMessage(workspace, recipient, subject, content);
 
 			System.out.println("Response: " + response);
