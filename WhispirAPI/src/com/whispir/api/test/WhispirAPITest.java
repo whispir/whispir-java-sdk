@@ -2,6 +2,9 @@ package com.whispir.api.test;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,6 +133,22 @@ public class WhispirAPITest {
 		
 		//HTTP415 Unsupported Media Type (it's not implemented yet)
 		assertTrue(response == 415);
+	}
+	
+	@Test
+	public void testMessageWithOptions() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+
+		Map<String,String> content = new HashMap<String,String>();
+		Map<String,String> options = new HashMap<String,String>();
+		
+		content.put("body", "This is the content of the SMS message.");
+		options.put("type", "defaultNoReply");
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content, options);
+		
+		//HTTP202 Accepted
+		assertTrue(response == 202);
 	}
 
 }

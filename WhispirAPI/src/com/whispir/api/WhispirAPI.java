@@ -36,7 +36,7 @@ public class WhispirAPI {
 	private static final String WHISPIR_MESSAGE_HEADER_V1 = "application/vnd.whispir.message-v1+json";
 	private static final String WHISPIR_MESSAGE_HEADER_V2 = "application/vnd.whispir.message-v2+json";
 	private static final String API_HOST = "api.whispir.com";
-	private static final String API_URL = "https://api.whispir.com/";
+	private static final String API_URL = "https://" + API_HOST + "/";
 	private static final String API_EXT = "?apikey=";
 	private static final String NO_AUTH_ERROR = "Whispir API Authentication failed. API Key, Username or Password was not provided.";
 	private static final String AUTH_FAILED_ERROR = "Whispir API Authentication failed. API Key, Username or Password were provided but were not correct.";
@@ -52,7 +52,7 @@ public class WhispirAPI {
 	/**
 	 * Instantiates the WhispirAPI object.
 	 * 
-	 * Requires the three parameters to be provided.
+	 * Requires the three parameters to be provided.  Assumes that this is using the v1 API.
 	 *  
 	 * @param apikey
 	 * @param username
@@ -62,6 +62,17 @@ public class WhispirAPI {
 	public WhispirAPI(String apikey, String username, String password) throws WhispirAPIException{	
 		this(apikey, username, password, "v1");
 	}
+	
+	/**
+	 * Instantiates the WhispirAPI object.
+	 * 
+	 * Requires the four parameters to be provided.  Version can be provided in the form "v1" or "v2".
+	 *  
+	 * @param apikey
+	 * @param username
+	 * @param password
+	 * @param version
+	 */
 	
 	public WhispirAPI(String apikey, String username, String password, String version) throws WhispirAPIException{
 		
@@ -144,23 +155,46 @@ public class WhispirAPI {
 	
 	/**
 	 * Allows a user to send a message in any workspace, with any combination of content within the content map
-	 * @param recipient - the mobile number or email address of the recipient of the message
-	 * @param subject - the textual subject of the message
-	 * @param content - the Map of content for the Whispir Message
-	 * 
+	 * <p>
 	 * The content Map is expected to provide the following information
-	 * 
+	 * </p>
 	 * For SMS/Push
 	 * body - The content for the Push/SMS message
 	 * 
 	 * For Email
 	 * emailType - The required mime type for the email (text/plain, text/html)
 	 * emailBody - The content for the Email
+	 * </p>
 	 * 
-	 * 
+	 * @param recipient - the mobile number or email address of the recipient of the message
+	 * @param subject - the textual subject of the message
+	 * @param content - the Map of content for the Whispir Message
 	 * @return response - the HTTP response code of the performed action.
 	 */
 	public int sendMessage(String workspaceId, String recipient, String subject, Map<String,String> content) throws WhispirAPIException{
+		Map<String, String> options = new HashMap<String, String>();
+		return sendMessage(workspaceId, recipient, subject, content, options);
+	}
+	
+	/**
+	 * Allows a user to send a message in any workspace, with any combination of content within the content map
+	 * <p>
+	 * The content Map is expected to provide the following information
+	 * </p>
+	 * For SMS/Push
+	 * body - The content for the Push/SMS message
+	 * 
+	 * For Email
+	 * emailType - The required mime type for the email (text/plain, text/html)
+	 * emailBody - The content for the Email
+	 * </p>
+	 * 
+	 * @param recipient - the mobile number or email address of the recipient of the message
+	 * @param subject - the textual subject of the message
+	 * @param content - the Map of content for the Whispir Message
+	 * @return response - the HTTP response code of the performed action.
+	 */
+	public int sendMessage(String workspaceId, String recipient, String subject, Map<String,String> content, Map<String,String> options) throws WhispirAPIException{
 		int response = 0;
 		
 		if(recipient == null || recipient.length() < 8) {
@@ -169,14 +203,22 @@ public class WhispirAPI {
 		}
 		
 		try {
-			//Check for SMS/Push Content
-			String sms = content.get("body");
+			JSONObject request = new JSONObject();
 			
-			String myString = new JSONObject().put("to", recipient)
-					.put("subject", subject).put("body", sms)
-					.toString();
+			request.put("to", recipient);
+			request.put("subject", subject);
+			
+			//Check for the body in the map
+			if(content.containsKey("body") && !"".equals(content.get("body"))) {
+				request.put("body", content.get("body"));
+			}
+			
+			//Check for the options in the map
+			if(options.containsKey("type")) {
+				request.put("type", options.get("type"));
+			}
 
-			response = httpPost(workspaceId, myString);
+			response = httpPost(workspaceId, request.toString());
 
 		} catch (JSONException e) {
 			throw new WhispirAPIException("Error occurred parsing the object with the content provided." + e.getMessage());
@@ -206,7 +248,7 @@ public class WhispirAPI {
 		HttpClient client = new HttpClient();
 
 		client.getState().setCredentials(
-				new AuthScope(API_HOST, 443, null),
+				new AuthScope(API_HOST, -1),
 				new UsernamePasswordCredentials(this.username, this.password));
 
 		try {

@@ -1,5 +1,7 @@
 package com.whispir.api;
 
+import java.util.Scanner;
+
 import com.whispir.api.exceptions.WhispirAPIException;
 
 public class APILauncher {
@@ -23,28 +25,36 @@ public class APILauncher {
 	public static void main(String[] args) {
 		
 		if (args.length < 3) {
-			System.out.println("Four String arguments are required.");
-			System.out.println("1 - Phone Number. e.g. 0402859178");
-			System.out.println("2 - Subject. e.g. Hello World");
-			System.out.println("3 - Content. e.g. SMS is fun");
-			System.out.println("4 - Workspace ID. e.g. F3460C2D9E5E2673");
+			System.out.println("Whispir API Test Bed v1.0");
+			System.out.println("This will prompt you to enter details for a message then send it.");
+			System.out.println("");
+			System.out.println("Three arguments are required to run this test bed.");
+			System.out.println("1 - API KEY e.g. abcdyecbbuc838c893b0");
+			System.out.println("2 - Username e.g. john.smith");
+			System.out.println("3 - password e.g. myPassword");
 		} else {
 			
+			Scanner input = new Scanner(System.in);
+			
 			try {
-				api = new WhispirAPI("4fcn8xkeherbdm5y5fpnat8g", "jordan.walsh", "12345678");
+				final String apikey = args[0];
+				final String username = args[1];
+				final String password = args[2];
 				
-				final String recipient = args[0];
-				final String subject = args[1];
-				final String content = args[2];
-				String workspace = "";
+				api = new WhispirAPI(apikey, username, password);
 				
-				if(args.length > 3) {
-					 workspace = args[3];
-				}
+				System.out.println("Please enter the phone number to send the SMS to:");
+				String recipient = input.next();
 				
-				int response = api.sendMessage(workspace, recipient, subject, content);
+				System.out.println("Please enter the Subject line of your message:");
+				String subject = input.next();
+				
+				System.out.println("Please enter the remainder of your message:");
+				String content = input.next();
+				
+				int response = api.sendMessage(recipient, subject, content);
 
-				System.out.println("Response: " + response);
+				System.out.println("Message Result: " + response);
 				
 			} catch (WhispirAPIException e) {
 				e.printStackTrace();
