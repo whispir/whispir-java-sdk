@@ -124,13 +124,11 @@ public class WhispirAPI {
 	}
 	
 	/**
-	 * Allows a user to send a message in the default My Company workspace
+	 * <p>Allows a user to send a message in the default My Company workspace.</p>
+	 * <p>For more complex content, the user should use the Map content overloaded function.</p>
 	 * @param recipient - the mobile number or email address of the recipient of the message
 	 * @param subject - the textual subject of the message
 	 * @param content - the textual content of the Push/SMS message.
-	 * 
-	 * For more complex content, the user should use the Map content overloaded function
-	 * 
 	 * @return response - the HTTP response code of the performed action.
 	 */
 	public int sendMessage(String recipient, String subject, String content) throws WhispirAPIException{		
@@ -138,13 +136,11 @@ public class WhispirAPI {
 	}
 	
 	/**
-	 * Allows a user to send a message in the specified Workspace ID
+	 * <p>Allows a user to send a message in the specified Workspace ID.</p>
+	 * <p>For more complex content, the user should use the Map content overloaded function.</p>
 	 * @param recipient - the mobile number or email address of the recipient of the message
 	 * @param subject - the textual subject of the message
 	 * @param content - the textual content of the Push/SMS message.
-	 * 
-	 * For more complex content, the user should use the Map content overloaded function
-	 * 
 	 * @return response - the HTTP response code of the performed action.
 	 */
 	public int sendMessage(String workspaceId, String recipient, String subject, String content) throws WhispirAPIException{
@@ -154,13 +150,10 @@ public class WhispirAPI {
 	}
 	
 	/**
-	 * Allows a user to send a message in any workspace, with any combination of content within the content map
-	 * <p>
-	 * The content Map is expected to provide the following information
-	 * </p>
-	 * For SMS/Push
-	 * body - The content for the Push/SMS message
-	 * 
+	 * <p>Allows a user to send a message in any workspace, with any combination of content within the content map.</p>
+	 * <p>The content Map is expected to provide the following information.</p>
+	 * <p>For SMS/Push</p>
+	 * <p>- body - The content for the Push/SMS message.</p>
 	 * 
 	 * @param recipient - the mobile number or email address of the recipient of the message
 	 * @param subject - the textual subject of the message
@@ -208,11 +201,22 @@ public class WhispirAPI {
 				request.put("body", content.get("body"));
 			}
 			
-			//Check for the options in the map
+			//Check for the noreply options in the map
 			if(options.containsKey("type")) {
 				request.put("type", options.get("type"));
 			}
-
+			
+			//Check for the push to SMS escalation options in the map
+			if(options.containsKey("pushEscalation")) {
+				request.put("pushEscalation", options.get("pushEscalation"));
+				
+				if(options.containsKey("escalationMins")) {
+					request.put("escalationMins", options.get("escalationMins"));
+				}
+			}
+			
+			
+			//Execute the request
 			response = httpPost(workspaceId, request.toString());
 
 		} catch (JSONException e) {
@@ -224,12 +228,15 @@ public class WhispirAPI {
 		return response;
 	}
 	
+	//***************************************************
+	//* Private Methods
+	//***************************************************
 	private int testHttpCall() throws WhispirAPIException {	
 		OptionsMethod method = (OptionsMethod)createOptionsMethod();
 		
 		return executeHttpMethod(method);
 	}
-	
+
 	private int httpPost(String workspace, String jsonContent) throws WhispirAPIException {	
 		PostMethod method = (PostMethod)createPostMethod(workspace, jsonContent);
 		
@@ -289,13 +296,6 @@ public class WhispirAPI {
 		return method;
 	}
 	
-	
-	/**
-	 * Constructs an OPTIONS call to execute with the supplied credentials.
-	 * This is used as a quick test call to determine whether the credentials are correct.
-	 * 
-	 * @return OptionsMethod to be executed by HTTPClient
-	 */
 	private HttpMethod createOptionsMethod() {
 		// Create a method instance.
 		final String url = API_URL + "messages" + API_EXT + this.apikey;
