@@ -161,10 +161,6 @@ public class WhispirAPI {
 	 * For SMS/Push
 	 * body - The content for the Push/SMS message
 	 * 
-	 * For Email
-	 * emailType - The required mime type for the email (text/plain, text/html)
-	 * emailBody - The content for the Email
-	 * </p>
 	 * 
 	 * @param recipient - the mobile number or email address of the recipient of the message
 	 * @param subject - the textual subject of the message
@@ -178,20 +174,19 @@ public class WhispirAPI {
 	
 	/**
 	 * Allows a user to send a message in any workspace, with any combination of content within the content map
-	 * <p>
-	 * The content Map is expected to provide the following information
-	 * </p>
-	 * For SMS/Push
-	 * body - The content for the Push/SMS message
-	 * 
-	 * For Email
-	 * emailType - The required mime type for the email (text/plain, text/html)
-	 * emailBody - The content for the Email
-	 * </p>
-	 * 
+	 * <p>The content Map is expected to provide the following information:</p>
+	 * <p>For SMS/Push</p>
+	 * <p>- body - The content of the SMS/Push Message</p>
+	 * <p></p>
+	 * <p>The options Map is expected to provide the following information:</p>
+	 * <p>- type - defaultNoReply (specifies if the message cannot be replied to)</p>
+	 * <p>- pushEscalation - true/false (string)</p>
+	 * <p>- escalationMins - 3,4,5,10 (string)</p>
+	 * <p></p>
 	 * @param recipient - the mobile number or email address of the recipient of the message
 	 * @param subject - the textual subject of the message
 	 * @param content - the Map of content for the Whispir Message
+	 * @param options - the Map of options for the Whispir Message
 	 * @return response - the HTTP response code of the performed action.
 	 */
 	public int sendMessage(String workspaceId, String recipient, String subject, Map<String,String> content, Map<String,String> options) throws WhispirAPIException{
