@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.whispir.api.WhispirAPI;
+import com.whispir.api.exceptions.WhispirAPIException;
 
 public class WhispirAPITest {
 	
@@ -26,86 +27,109 @@ public class WhispirAPITest {
 	}
 	
 	@Test
-	public void testBadAPIKey() {
+	public void testBadAPIKey() throws WhispirAPIException {
 		whispirAPI.setApikey("1234");
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
 		
+		//HTTP403 Permission Denied / Forbidden
 		assertTrue(response == 403);
 	}
 	
 	@Test
-	public void testBadUsername() {		
+	public void testBadUsername() throws WhispirAPIException {		
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername("blahblahblah");
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
 		
+		//HTTP401 Unauthorized Access
 		assertTrue(response == 401);
 	}
 	
 	@Test
-	public void testBadPassword() {
+	public void testBadPassword() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword("blahblahblah");
 		
 		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
 		
+		//HTTP401 Unauthorized Access
 		assertTrue(response == 401);
 	}
 	
 	@Test
-	public void testBadRecipient() {
+	public void testBadRecipient() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("1", "Incident Notification Test.", "This is the content of the SMS message.");
+		
+		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
 	}
 	
 	@Test
-	public void testBadSubject() {
+	public void testBadSubject() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "", "This is the content of the SMS message.");
+		
+		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
 	}
 	
 	@Test
-	public void testBadContent() {
+	public void testBadContent() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "Incident Notification Test.", "");
+		
+		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
 	}
 	
 	@Test
-	public void testCompanyMessage() {
+	public void testCompanyMessage() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		
+		//HTTP202 Accepted
 		assertTrue(response == 202);
 	}
 	
 	@Test
-	public void testWorkspaceMessage() {
+	public void testWorkspaceMessage() throws WhispirAPIException {
 		whispirAPI.setApikey(TEST_API_KEY);
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
 		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		
+		//HTTP202 Accepted
 		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testV2Schema() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD, "v2");
+
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		
+		//HTTP415 Unsupported Media Type (it's not implemented yet)
+		assertTrue(response == 415);
 	}
 
 }

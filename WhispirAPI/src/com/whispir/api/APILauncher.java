@@ -1,6 +1,10 @@
 package com.whispir.api;
 
+import com.whispir.api.exceptions.WhispirAPIException;
+
 public class APILauncher {
+	
+	private static WhispirAPI api;
 
 	/**
 	 * 
@@ -18,8 +22,6 @@ public class APILauncher {
 	 */
 	public static void main(String[] args) {
 		
-		WhispirAPI whispirAPI = new WhispirAPI("4fcn8xkeherbdm5y5fpnat8g", "jordan.walsh", "12345678");
-
 		if (args.length < 3) {
 			System.out.println("Four String arguments are required.");
 			System.out.println("1 - Phone Number. e.g. 0402859178");
@@ -27,21 +29,26 @@ public class APILauncher {
 			System.out.println("3 - Content. e.g. SMS is fun");
 			System.out.println("4 - Workspace ID. e.g. F3460C2D9E5E2673");
 		} else {
-			final String recipient = args[0];
-			final String subject = args[1];
-			final String content = args[2];
-			String workspace = "";
 			
-			if(args.length > 3) {
-				 workspace = args[3];
+			try {
+				api = new WhispirAPI("4fcn8xkeherbdm5y5fpnat8g", "jordan.walsh", "12345678");
+				
+				final String recipient = args[0];
+				final String subject = args[1];
+				final String content = args[2];
+				String workspace = "";
+				
+				if(args.length > 3) {
+					 workspace = args[3];
+				}
+				
+				int response = api.sendMessage(workspace, recipient, subject, content);
+
+				System.out.println("Response: " + response);
+				
+			} catch (WhispirAPIException e) {
+				e.printStackTrace();
 			}
-			
-			int response = whispirAPI.sendMessage(workspace, recipient, subject, content);
-
-			System.out.println("Response: " + response);
 		}
-
 	}
-	
-	
 }
