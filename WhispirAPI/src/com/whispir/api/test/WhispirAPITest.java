@@ -15,9 +15,12 @@ import com.whispir.api.exceptions.WhispirAPIException;
 public class WhispirAPITest {
 	
 	private WhispirAPI whispirAPI;
-	private static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
-	private static final String TEST_USERNAME = "jordan.walsh";
-	private static final String TEST_PASSWORD = "12345678";
+	
+	//POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
+	
+	private static final String TEST_API_KEY = "";
+	private static final String TEST_USERNAME = "";
+	private static final String TEST_PASSWORD = "";
 	
 	
 	@Before
