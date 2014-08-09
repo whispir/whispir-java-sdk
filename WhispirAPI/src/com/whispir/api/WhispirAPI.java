@@ -244,11 +244,11 @@ public class WhispirAPI {
 			}
 			
 			//Check for the push to SMS escalation options in the map
-			if(options.containsKey("pushEscalation")) {
-				request.put("pushEscalation", options.get("pushEscalation"));
+			if(options.containsKey("pushNotifications") && "enabled".equalsIgnoreCase(options.get("pushNotifications")) ) {
+				request.put("pushNotifications", "enabled");
 				
-				if(options.containsKey("escalationMins")) {
-					request.put("escalationMins", options.get("escalationMins"));
+				if(options.containsKey("pushEscalationMins")) {
+					request.put("pushEscalationMins", options.get("pushEscalationMins"));
 				}
 			}
 			
@@ -269,13 +269,11 @@ public class WhispirAPI {
 	//***************************************************
 	private int testHttpCall() throws WhispirAPIException {	
 		OptionsMethod method = (OptionsMethod)createOptionsMethod();
-		
 		return executeHttpMethod(method);
 	}
 
 	private int httpPost(String workspace, String jsonContent) throws WhispirAPIException {	
 		PostMethod method = (PostMethod)createPostMethod(workspace, jsonContent);
-		
 		return executeHttpMethod(method);
 	}
 
@@ -323,7 +321,7 @@ public class WhispirAPI {
 		method.setRequestHeader("Accept", this.version);
 		
 		try {
-			request = new StringRequestEntity(content, WHISPIR_MESSAGE_HEADER_V1, null);
+			request = new StringRequestEntity(content, this.version, null);
 			method.setRequestEntity(request);
 		} catch (UnsupportedEncodingException e) {
 			throw new WhispirAPIException(e.getMessage());
@@ -335,14 +333,8 @@ public class WhispirAPI {
 	private HttpMethod createOptionsMethod() {
 		// Create a method instance.
 		final String url = API_URL + "messages" + API_EXT + this.apikey;
-		
 		OptionsMethod method = new OptionsMethod(url);
-
 		method.setDoAuthentication(true);
-		
-		method.setRequestHeader("Content-Type", WHISPIR_MESSAGE_HEADER_V1);
-		method.setRequestHeader("Accept", WHISPIR_MESSAGE_HEADER_V1);
-		
 		return method;
 	}
 }
