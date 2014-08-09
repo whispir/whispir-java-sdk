@@ -18,16 +18,18 @@ public class APILauncher {
 		WhispirAPI whispirAPI = new WhispirAPI("4fcn8xkeherbdm5y5fpnat8g", "jordan.walsh", "12345678");
 
 		if (args.length < 3) {
-			System.out.println("Six String arguments are required.");
+			System.out.println("Four String arguments are required.");
 			System.out.println("1 - Phone Number. e.g. 0402859178");
 			System.out.println("2 - Subject. e.g. Hello World");
 			System.out.println("3 - Content. e.g. SMS is fun");
+			System.out.println("4 - Workspace ID. e.g. F3460C2D9E5E2673");
 		} else {
 			final String recipient = args[0];
 			final String subject = args[1];
 			final String content = args[2];
+			final String workspace = args[3];
 
-			int response = whispirAPI.sendMessage(recipient, subject, content);
+			int response = whispirAPI.sendMessage(workspace, recipient, subject, content);
 
 			System.out.println("Response: " + response);
 		}
