@@ -44,13 +44,13 @@ public class APILauncher {
 				api = new WhispirAPI(apikey, username, password);
 				
 				System.out.println("Please enter the phone number to send the SMS to:");
-				String recipient = input.next();
+				String recipient = input.nextLine();
 				
 				System.out.println("Please enter the Subject line of your message:");
-				String subject = input.next();
+				String subject = input.nextLine();
 				
 				System.out.println("Please enter the remainder of your message:");
-				String content = input.next();
+				String content = input.nextLine();
 				
 				int response = api.sendMessage(recipient, subject, content);
 

@@ -150,5 +150,67 @@ public class WhispirAPITest {
 		//HTTP202 Accepted
 		assertTrue(response == 202);
 	}
+	
+	@Test
+	public void testEmailMessage() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+
+		Map<String,String> content = new HashMap<String,String>();
+		
+		content.put("email", "This is the content of the Email message.");
+		content.put("emailType", "text/plain");
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "jwalsh@whispir.com", "Incident Notification Test.", content);
+		
+		//HTTP202 Accepted
+		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testPlainRPMMessage() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+
+		Map<String,String> content = new HashMap<String,String>();
+		
+		content.put("body", "This is the content of the SMS message. @@web_link@@");
+		content.put("web", "This is the content of the Web message.");
+		content.put("webType", "text/plain");
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		
+		//HTTP202 Accepted
+		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testRichRPMMessage() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+
+		Map<String,String> content = new HashMap<String,String>();
+		
+		content.put("body", "This is the content of the SMS message. @@web_link@@");
+		content.put("web", "<b>This is the content of the Web message.</b>");
+		content.put("webType", "text/html");
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		
+		//HTTP202 Accepted
+		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testVoiceCall() throws WhispirAPIException {
+		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+
+		Map<String,String> content = new HashMap<String,String>();
+		
+		content.put("voiceIntro", "Welcome");
+		content.put("voice", "This is the content of the voice call");
+		
+		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		
+		//HTTP202 Accepted
+		assertTrue(response == 202);
+	}
 
 }

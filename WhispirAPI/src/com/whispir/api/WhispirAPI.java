@@ -201,6 +201,43 @@ public class WhispirAPI {
 				request.put("body", content.get("body"));
 			}
 			
+			//Check for the email in the map
+			if(content.containsKey("email") && !"".equals(content.get("email"))) {
+				JSONObject email = new JSONObject();
+				email.put("body", content.get("email"));
+				
+				if(content.containsKey("emailType") && !"".equals(content.get("emailType"))) {
+					email.put("type", content.get("emailType"));
+				}
+				
+				request.put("email", email);
+			}
+			
+			//Check for the voice content in the map
+			if(content.containsKey("voice") && !"".equals(content.get("voice"))) {
+				JSONObject voice = new JSONObject();
+				voice.put("body", content.get("voice"));
+				voice.put("type", "ConfCall:,ConfAccountNo:,ConfPinNo:,ConfModPinNo:,Pin:");
+				
+				if(content.containsKey("voiceIntro") && !"".equals(content.get("voiceIntro"))) {
+					voice.put("header", content.get("voiceIntro"));
+				}
+				
+				request.put("voice", voice);
+			}
+			
+			//Check for the web content in the map
+			if(content.containsKey("web") && !"".equals(content.get("web"))) {
+				JSONObject web = new JSONObject();
+				web.put("body", content.get("web"));
+				
+				if(content.containsKey("webType") && !"".equals(content.get("webType"))) {
+					web.put("type", content.get("webType"));
+				}
+				
+				request.put("web", web);
+			}
+			
 			//Check for the noreply options in the map
 			if(options.containsKey("type")) {
 				request.put("type", options.get("type"));
@@ -214,7 +251,6 @@ public class WhispirAPI {
 					request.put("escalationMins", options.get("escalationMins"));
 				}
 			}
-			
 			
 			//Execute the request
 			response = httpPost(workspaceId, request.toString());
