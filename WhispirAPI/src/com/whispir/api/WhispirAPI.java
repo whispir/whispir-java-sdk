@@ -245,11 +245,15 @@ public class WhispirAPI {
 			
 			//Check for the push to SMS escalation options in the map
 			if(options.containsKey("pushNotifications") && "enabled".equalsIgnoreCase(options.get("pushNotifications")) ) {
-				request.put("pushNotifications", "enabled");
+				
+				JSONObject features = new JSONObject();
+				features.put("pushNotifications", "enabled");
 				
 				if(options.containsKey("pushEscalationMins")) {
-					request.put("pushEscalationMins", options.get("pushEscalationMins"));
+					features.put("pushEscalationMins", options.get("pushEscalationMins"));
 				}
+				
+				request.put("features", features);
 			}
 			
 			//Execute the request
