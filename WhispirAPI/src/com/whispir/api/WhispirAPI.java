@@ -252,7 +252,7 @@ public class WhispirAPI {
 				if(options.containsKey("pushEscalationMins")) {
 					features.put("pushEscalationMins", options.get("pushEscalationMins"));
 				}
-				
+				 
 				request.put("features", features);
 			}
 			
