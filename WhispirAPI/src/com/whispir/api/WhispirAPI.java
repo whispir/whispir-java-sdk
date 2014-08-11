@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
@@ -293,6 +294,25 @@ public class WhispirAPI {
 
 		try {
 			statusCode = client.executeMethod(method);
+			
+			if(statusCode == 403) {
+				//Check the headers to see if it was an over QPS issue
+				
+				Header h = method.getResponseHeader("X-Mashery-Error-Code");
+				
+				if(h != null && "ERR_403_DEVELOPER_OVER_QPS".equals(h.getValue())) {
+					//Wait for 1 second and try the request again.
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					//If it doesn't work this time, then there's something else smashing this key, up to the user to try again.
+					statusCode = client.executeMethod(method);
+				}
+			}
+			
 		} catch (HttpException e) {
 			System.err.println("Fatal protocol violation: " + e.getMessage());
 			e.printStackTrace();

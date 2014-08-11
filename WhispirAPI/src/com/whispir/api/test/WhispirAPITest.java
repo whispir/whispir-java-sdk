@@ -13,14 +13,21 @@ import com.whispir.api.WhispirAPI;
 import com.whispir.api.exceptions.WhispirAPIException;
 
 public class WhispirAPITest {
-	
+
 	private WhispirAPI whispirAPI;
 	
 	//POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 	
-	private static final String TEST_API_KEY = "";
-	private static final String TEST_USERNAME = "";
-	private static final String TEST_PASSWORD = "";
+	private static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
+	private static final String TEST_USERNAME = "jordan.walsh";
+	private static final String TEST_PASSWORD = "12345678";
+	
+	//Message content variables for the tests
+	
+	private static final String TEST_RECIPIENT = "61423556682";
+	private static final String TEST_WORKSPACE_ID = "F3460C2D9E5E2673";
+	private static final String TEST_MESSAGE_SUBJECT = "Incident Notification Test.";
+	private static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
 	
 	
 	@Before
@@ -37,7 +44,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP403 Permission Denied / Forbidden
 		assertTrue(response == 403);
@@ -49,7 +56,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername("blahblahblah");
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP401 Unauthorized Access
 		assertTrue(response == 401);
@@ -61,7 +68,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword("blahblahblah");
 		
-		int response = whispirAPI.sendMessage("61423556682", "subject", "content");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP401 Unauthorized Access
 		assertTrue(response == 401);
@@ -73,7 +80,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("1", "Incident Notification Test.", "This is the content of the SMS message.");
+		int response = whispirAPI.sendMessage("1", TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
@@ -85,7 +92,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("61423556682", "", "This is the content of the SMS message.");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, "", TEST_MESSAGE_BODY);
 		
 		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
@@ -97,7 +104,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("61423556682", "Incident Notification Test.", "");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, "");
 		
 		//HTTP422 Unprocessable Entity
 		assertTrue(response == 422);
@@ -109,7 +116,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -121,7 +128,7 @@ public class WhispirAPITest {
 		whispirAPI.setUsername(TEST_USERNAME);
 		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -131,7 +138,7 @@ public class WhispirAPITest {
 	public void testV2Schema() throws WhispirAPIException {
 		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD, "v2");
 
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", "This is the content of the SMS message.");
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 		
 		//HTTP415 Unsupported Media Type (it's not implemented yet)
 		assertTrue(response == 415);
@@ -144,10 +151,10 @@ public class WhispirAPITest {
 		Map<String,String> content = new HashMap<String,String>();
 		Map<String,String> options = new HashMap<String,String>();
 		
-		content.put("body", "This is the content of the SMS message.");
+		content.put("body", TEST_MESSAGE_BODY);
 		options.put("type", "defaultNoReply");
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content, options);
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content, options);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -162,7 +169,7 @@ public class WhispirAPITest {
 		content.put("email", "This is the content of the Email message.");
 		content.put("emailType", "text/plain");
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "jwalsh@whispir.com", "Incident Notification Test.", content);
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, "jwalsh@whispir.com", TEST_MESSAGE_SUBJECT, content);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -178,7 +185,7 @@ public class WhispirAPITest {
 		content.put("web", "This is the content of the Web message.");
 		content.put("webType", "text/plain");
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -194,7 +201,7 @@ public class WhispirAPITest {
 		content.put("web", "<b>This is the content of the Web message.</b>");
 		content.put("webType", "text/html");
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
@@ -209,7 +216,7 @@ public class WhispirAPITest {
 		content.put("voiceIntro", "Welcome");
 		content.put("voice", "This is the content of the voice call");
 		
-		int response = whispirAPI.sendMessage("F3460C2D9E5E2673", "61423556682", "Incident Notification Test.", content);
+		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID, TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 		
 		//HTTP202 Accepted
 		assertTrue(response == 202);
