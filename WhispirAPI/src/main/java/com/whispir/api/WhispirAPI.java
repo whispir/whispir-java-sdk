@@ -305,7 +305,7 @@ public class WhispirAPI {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						//Ended sleep. Continue.
 					}
 					
 					//If it doesn't work this time, then there's something else smashing this key, up to the user to try again.

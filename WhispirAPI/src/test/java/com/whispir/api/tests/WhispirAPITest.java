@@ -1,4 +1,4 @@
-package com.whispir.api.test;
+package com.whispir.api.tests;
 
 import static org.junit.Assert.assertTrue;
 
