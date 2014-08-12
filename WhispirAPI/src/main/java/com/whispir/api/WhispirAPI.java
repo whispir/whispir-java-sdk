@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -37,15 +38,19 @@ public class WhispirAPI {
 	private static final String WHISPIR_MESSAGE_HEADER_V1 = "application/vnd.whispir.message-v1+json";
 	private static final String WHISPIR_MESSAGE_HEADER_V2 = "application/vnd.whispir.message-v2+json";
 	private static final String API_HOST = "api.whispir.com";
-	private static final String API_URL = "https://" + API_HOST + "/";
 	private static final String API_EXT = "?apikey=";
-	private static final String NO_AUTH_ERROR = "Whispir API Authentication failed. API Key, Username or Password was not provided.";
-	private static final String AUTH_FAILED_ERROR = "Whispir API Authentication failed. API Key, Username or Password were provided but were not correct.";
+	public static final String NO_AUTH_ERROR = "Whispir API Authentication failed. API Key, Username or Password was not provided.";
+	public static final String AUTH_FAILED_ERROR = "Whispir API Authentication failed. API Key, Username or Password were provided but were not correct.";
 	
 	private String apikey;
 	private String username;
 	private String password;
 	private String version;
+	
+	//Used for debugging/testing purposes
+	private String debugHost;
+	private boolean debug;
+	private boolean httpsEnabled;
 
 	@SuppressWarnings("unused")
 	private WhispirAPI() {}
@@ -76,8 +81,23 @@ public class WhispirAPI {
 	 */
 	
 	public WhispirAPI(String apikey, String username, String password, String version) throws WhispirAPIException{
+		this(apikey, username, password, version, "");
+	}
+	
+	/**
+	 * Instantiates the WhispirAPI object.
+	 * 
+	 * Requires the four parameters to be provided.  Version can be provided in the form "v1" or "v2".
+	 *  
+	 * @param apikey
+	 * @param username
+	 * @param password
+	 * @param version
+	 */
+	
+	public WhispirAPI(String apikey, String username, String password, String version, String debugHost) throws WhispirAPIException{
 		
-		if(apikey == null || username == null || password == null || version == null ) {
+		if(apikey.equals(null) || username.equals(null) || password.equals(null) || version.equals(null) ) {
 			throw new WhispirAPIException(NO_AUTH_ERROR);
 		}
 		
@@ -89,6 +109,10 @@ public class WhispirAPI {
 			this.apikey = apikey;
 			this.username = username;
 			this.password = password;
+			
+			if(debugHost != null && !"".equals(debugHost) ) {
+				this.setDebugHost(debugHost);
+			}
 			
 			//If the GET request fails, then throw an error as the API won't work.
 			int response = this.testHttpCall();
@@ -122,6 +146,19 @@ public class WhispirAPI {
 	
 	public void setVersion(String version) {
 		this.version = version;
+	}
+	
+	public void setDebugHost(String debugHost) {
+		if(!"".equals(debugHost)) {
+			this.debugHost = debugHost;
+			this.debug = true;
+		} else {
+			this.debug = false;
+		}
+	}
+	
+	public void setHttpsEnabled(boolean httpsEnabled) {
+		this.httpsEnabled = httpsEnabled;
 	}
 	
 	/**
@@ -262,9 +299,7 @@ public class WhispirAPI {
 
 		} catch (JSONException e) {
 			throw new WhispirAPIException("Error occurred parsing the object with the content provided." + e.getMessage());
-		} catch (Exception e) {
-			throw new WhispirAPIException("Error occurred." + e.getMessage());
-		}
+		} 
 		
 		return response;
 	}
@@ -288,10 +323,14 @@ public class WhispirAPI {
 		// Create an instance of HttpClient.
 		HttpClient client = new HttpClient();
 
-		client.getState().setCredentials(
-				new AuthScope(API_HOST, -1),
-				new UsernamePasswordCredentials(this.username, this.password));
-
+		Credentials creds = new UsernamePasswordCredentials(this.username, this.password);
+		
+		if(debug) {
+			client.getState().setCredentials(AuthScope.ANY, creds);
+		} else {
+			client.getState().setCredentials(new AuthScope(this.getHost(false), -1), creds);
+		}
+	
 		try {
 			statusCode = client.executeMethod(method);
 			
@@ -329,14 +368,9 @@ public class WhispirAPI {
 	
 	private HttpMethod createPostMethod(String workspaceId, String content) throws WhispirAPIException {
 		// Create a method instance.
-		String url = "";
+		String url = buildUrl(workspaceId);
 		RequestEntity request;
 		
-		if(workspaceId != null && !"".equals(workspaceId)) {
-			url = API_URL + "workspaces/" + workspaceId + "/messages" + API_EXT + this.apikey;
-		} else {
-			url = API_URL + "messages" + API_EXT + this.apikey;
-		}
 		PostMethod method = new PostMethod(url);
 
 		method.setDoAuthentication(true);
@@ -356,9 +390,38 @@ public class WhispirAPI {
 	
 	private HttpMethod createOptionsMethod() {
 		// Create a method instance.
-		final String url = API_URL + "messages" + API_EXT + this.apikey;
+		final String url = buildUrl();
 		OptionsMethod method = new OptionsMethod(url);
 		method.setDoAuthentication(true);
 		return method;
+	}
+	
+	private String getHost(boolean ext) {
+		if(debug) {
+			return ext ? this.debugHost + "/api" : this.debugHost;
+			
+		} else {
+			return API_HOST;
+		}
+	}
+	
+	private String buildUrl() {
+		return this.buildUrl("");
+	}
+	
+	private String buildUrl(String workspaceId) {
+		String url = "";
+		//Set the host to either the debug host or the production host depending on the debug setting
+		String host = getHost(true);
+		
+		String protocol = httpsEnabled ? "https://" : "http://";
+		
+		if(workspaceId != null && !"".equals(workspaceId)) {
+			url = protocol + host + "/workspaces/" + workspaceId + "/messages" + API_EXT + this.apikey;
+		} else {
+			url = protocol + host + "/messages" + API_EXT + this.apikey;
+		}
+		
+		return url;
 	}
 }
