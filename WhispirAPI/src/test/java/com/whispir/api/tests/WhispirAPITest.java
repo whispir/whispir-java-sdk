@@ -13,31 +13,42 @@ import com.whispir.api.WhispirAPI;
 import com.whispir.api.exceptions.WhispirAPIException;
 
 public class WhispirAPITest {
-
-	private WhispirAPI whispirAPI;
+	
+	protected WhispirAPI whispirAPI;
 
 	// POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 
-	private static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
-	private static final String TEST_USERNAME = "jordan.walsh";
-	private static final String TEST_PASSWORD = "1234";
+	protected static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
+	protected static final String TEST_USERNAME = "jordan.walsh";
+	protected static final String TEST_PASSWORD = "12345678";
 
 	// Message content variables for the tests
 
-	private static final String TEST_RECIPIENT = "61423556682";
-	private static final String TEST_WORKSPACE_ID = "F3460C2D9E5E2673";
-	private static final String TEST_MESSAGE_SUBJECT = "Incident Notification Test.";
-	private static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
+	protected static final String TEST_RECIPIENT = "61423556682";
+	protected static final String TEST_WORKSPACE_ID = "F3460C2D9E5E2673";
+	protected static final String TEST_MESSAGE_SUBJECT = "Incident Notification Test.";
+	protected static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
+
+	// Debugging
+	protected static final String DEBUG_HOST = "";
 	
-	//Debugging
-	private static final String DEBUG_HOST = "app19.dev1.whispir.net:8080";
+	// Proxy Debugging (I installed Squid on my Mac from here http://squidman.net/squidman/index.html)
+	protected static final String PROXY_HOST = "localhost";
+	protected static final int PROXY_PORT = 9080;
+	protected static final String PROXY_SCHEME = "http";
 
 	@Before
 	public void setUp() throws Exception {
-		if(!"".equals(DEBUG_HOST)) {
-			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD, "v1", DEBUG_HOST);
+		if (!"".equals(DEBUG_HOST)) {
+			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME,
+					TEST_PASSWORD, "v1", DEBUG_HOST);
 		} else {
-			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD);
+			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME,
+					TEST_PASSWORD);
+		}
+		
+		if (!"".equals(PROXY_HOST)) {
+			whispirAPI.setProxy(PROXY_HOST, PROXY_PORT, PROXY_SCHEME);
 		}
 	}
 
@@ -53,15 +64,12 @@ public class WhispirAPITest {
 		
 		int response = whispirAPI.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
-		
 		if(!"".equals(DEBUG_HOST)) {
 			assertTrue(response == 202);
 		} else {
 			// HTTP403 Permission Denied / Forbidden
 			assertTrue(response == 403);
 		}
-		
-		
 	}
 
 	@Test
@@ -240,5 +248,4 @@ public class WhispirAPITest {
 		// HTTP202 Accepted
 		assertTrue(response == 202);
 	}
-
 }

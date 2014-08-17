@@ -32,32 +32,34 @@ public class APILauncher {
 			System.out.println("Nine arguments are required to run this test bed.");
 			System.out.println("1 - debug mode: true/false");
 			System.out.println("2 - server: app19.dev1.whispir.net:8080 (enter a - if none)");
-			System.out.println("3 - Username e.g. john.smith");
-			System.out.println("4 - password e.g. myPassword");
-			System.out.println("5 - 1=Simple SMS/Push in My Company, 2=Simple SMS/Push in a Workspace, 3=RPM in a Workspace, 4=RPM with Push Escalation");
-			System.out.println("6 - Workspace ID (enter a - if none)");
-			System.out.println("7 - Recipient Details");
-			System.out.println("8 - Subject");
-			System.out.println("9 - Content");
-			System.out.println("10 - Schema Version");
+			System.out.println("3 - API key e.g. 4fcn8xkeherbdm5y5fpnat8g");
+			System.out.println("4 - Username e.g. john.smith");
+			System.out.println("5 - password e.g. myPassword");
+			System.out.println("6 - 1=Simple SMS/Push in My Company, 2=Simple SMS/Push in a Workspace, 3=RPM in a Workspace, 4=RPM with Push Escalation");
+			System.out.println("7 - Workspace ID (enter a - if none)");
+			System.out.println("8 - Recipient Details");
+			System.out.println("9 - Subject");
+			System.out.println("10 - Content");
+			System.out.println("11 - Schema Version");
 		} else {
 			
 			try {
 				final String debug = args[0];
 				final String server = args[1];
-				final String username = args[2];				
-				final String password = args[3];
-				final int test = new Integer(args[4]);
-				final String workspaceId = args[5];
-				final String recipient = args[6];
-				final String subject = args[7];
-				final String messageContent = args[8];
-				final String schemaVersion = args[9];
+				final String apikey = args[2];								
+				final String username = args[3];				
+				final String password = args[4];
+				final int test = new Integer(args[5]);
+				final String workspaceId = args[6];
+				final String recipient = args[7];
+				final String subject = args[8];
+				final String messageContent = args[9];
+				final String schemaVersion = args[10];
 				
 				if("true".equals(debug)) {
 					api = new WhispirAPI("abc", username, password, schemaVersion, server);
 				} else {
-					api = new WhispirAPI("abc", username, password, schemaVersion, "");
+					api = new WhispirAPI(apikey, username, password, schemaVersion, "");
 				}
 				
 				int response = 0;
