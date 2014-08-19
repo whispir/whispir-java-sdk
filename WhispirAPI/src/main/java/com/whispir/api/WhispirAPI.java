@@ -348,7 +348,7 @@ public class WhispirAPI {
 				request.put("features", features);
 			}
 
-			//System.out.println("Request: " + request.toString());
+			System.out.println("Request: " + request.toString());
 			
 			// Execute the request
 			response = httpPost(workspaceId, request.toString());

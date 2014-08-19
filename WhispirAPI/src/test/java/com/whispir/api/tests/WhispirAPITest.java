@@ -18,18 +18,18 @@ public class WhispirAPITest {
 
 	// POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 
-	protected static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
-	protected static final String TEST_USERNAME = "cadmin";
-	protected static final String TEST_PASSWORD = "1234";
+	protected static final String TEST_API_KEY = "";
+	protected static final String TEST_USERNAME = "";
+	protected static final String TEST_PASSWORD = "";
 
 	// Message content variables for the tests
-	protected static final String TEST_RECIPIENT = "61423556682";
+	protected static final String TEST_RECIPIENT = "";
 	protected static final String TEST_WORKSPACE_ID = "";
-	protected static final String TEST_MESSAGE_SUBJECT = "Incident Notification Test.";
-	protected static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
+	protected static final String TEST_MESSAGE_SUBJECT = "";
+	protected static final String TEST_MESSAGE_BODY = "";
 
 	// Debugging
-	protected static final String DEBUG_HOST = "app19.dev1.whispir.net:8080/api";
+	protected static final String DEBUG_HOST = "";
 	
 	// Proxy Debugging (I installed Squid on my Mac from here http://squidman.net/squidman/index.html)
 	protected static final String PROXY_HOST = "";
@@ -194,7 +194,7 @@ public class WhispirAPITest {
 		content.put("emailType", "text/plain");
 
 		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
-				"jwalsh@whispir.com", TEST_MESSAGE_SUBJECT, content);
+				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
 		assertTrue(response == 202);
