@@ -19,8 +19,8 @@ public class WhispirAPITest {
 	// POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 
 	protected static final String TEST_API_KEY = "4fcn8xkeherbdm5y5fpnat8g";
-	protected static final String TEST_USERNAME = "jordan.walsh";
-	protected static final String TEST_PASSWORD = "12345678";
+	protected static final String TEST_USERNAME = "cadmin";
+	protected static final String TEST_PASSWORD = "1234";
 
 	// Message content variables for the tests
 	protected static final String TEST_RECIPIENT = "61423556682";
@@ -29,7 +29,7 @@ public class WhispirAPITest {
 	protected static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
 
 	// Debugging
-	protected static final String DEBUG_HOST = "";
+	protected static final String DEBUG_HOST = "app19.dev1.whispir.net:8080/api";
 	
 	// Proxy Debugging (I installed Squid on my Mac from here http://squidman.net/squidman/index.html)
 	protected static final String PROXY_HOST = "";

@@ -467,10 +467,18 @@ public class WhispirAPI {
 	}
 
 	private String getHost() {
-		if (debug) {
+		if (debug) {	
 			return this.debugHost;
 		} else {
 			return API_HOST;
+		}
+	}
+	
+	private String getScheme(String host) {
+		if(host.indexOf("app19") > -1 ) {
+			return "http://";
+		} else {
+			return API_SCHEME;
 		}
 	}
 
@@ -479,12 +487,13 @@ public class WhispirAPI {
 		// Set the host to either the debug host or the production host
 		// depending on the debug setting
 		String host = getHost();
+		String scheme = getScheme(host);
 
 		if (workspaceId != null && !"".equals(workspaceId)) {
-			url = API_SCHEME + host + "/workspaces/" + workspaceId + "/messages"
+			url = scheme + host + "/workspaces/" + workspaceId + "/messages"
 					+ API_EXT + this.apikey;
 		} else {
-			url = API_SCHEME + host + "/messages" + API_EXT + this.apikey;
+			url = scheme + host + "/messages" + API_EXT + this.apikey;
 		}
 
 		return url;
