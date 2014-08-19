@@ -40,8 +40,7 @@ public class APILauncher {
 			System.out.println("8 - Recipient Details");
 			System.out.println("9 - Subject");
 			System.out.println("10 - Content");
-			System.out.println("11 - Schema Version");
-			System.out.println("12 - Use Proxy (true/false)");
+			System.out.println("11 - Use Proxy (true/false)");
 		} else {
 			
 			try {
@@ -55,17 +54,16 @@ public class APILauncher {
 				final String recipient = args[7];
 				final String subject = args[8];
 				final String messageContent = args[9];
-				final String schemaVersion = args[10];
-				final String proxyEnabled = args[11];
+				final String proxyEnabled = args[10];
 				
 				if("true".equals(debug)) {
-					api = new WhispirAPI("abc", username, password, schemaVersion, server);
+					api = new WhispirAPI("abc", username, password, server);
 				} else {
-					api = new WhispirAPI(apikey, username, password, schemaVersion, "");
+					api = new WhispirAPI(apikey, username, password, "");
 				}
 				
 				if("true".equals(proxyEnabled)) {
-					api.setProxy("localhost", 9080, "http");
+					api.setProxy("localhost", 9080, false);
 				}
 				
 				int response = 0;

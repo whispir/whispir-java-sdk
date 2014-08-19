@@ -39,7 +39,7 @@ import com.whispir.api.exceptions.WhispirAPIException;
 public class WhispirAPI {
 
 	private static final String WHISPIR_MESSAGE_HEADER_V1 = "application/vnd.whispir.message-v1+json";
-	private static final String WHISPIR_MESSAGE_HEADER_V2 = "application/vnd.whispir.message-v2+json";
+	private static final String API_SCHEME = "https://";
 	private static final String API_HOST = "api.whispir.com";
 	private static final String API_EXT = "?apikey=";
 	public static final String NO_AUTH_ERROR = "Whispir API Authentication failed. API Key, Username or Password was not provided.";
@@ -48,12 +48,10 @@ public class WhispirAPI {
 	private String apikey;
 	private String username;
 	private String password;
-	private String version;
 
 	// Used for debugging/testing purposes
 	private String debugHost;
 	private boolean debug;
-	private boolean httpsEnabled;
 
 	// Used for proxy purposes
 	private RequestConfig proxy;
@@ -76,48 +74,27 @@ public class WhispirAPI {
 
 	public WhispirAPI(String apikey, String username, String password)
 			throws WhispirAPIException {
-		this(apikey, username, password, "v1");
+		this(apikey, username, password, "");
 	}
 
 	/**
 	 * Instantiates the WhispirAPI object.
 	 * 
-	 * Requires the four parameters to be provided. Version can be provided in
-	 * the form "v1" or "v2".
+	 * Requires the four parameters to be provided. DebugHost can be provided in the form xxxxxxx.whispir.net:8080 / xxxx.whispir.com
 	 * 
 	 * @param apikey
 	 * @param username
 	 * @param password
-	 * @param version
+	 * @param debugHost
 	 */
 
-	public WhispirAPI(String apikey, String username, String password,
-			String version) throws WhispirAPIException {
-		this(apikey, username, password, version, "");
-	}
+	public WhispirAPI(String apikey, String username, String password, String debugHost) throws WhispirAPIException {
 
-	/**
-	 * Instantiates the WhispirAPI object.
-	 * 
-	 * Requires the four parameters to be provided. Version can be provided in
-	 * the form "v1" or "v2".
-	 * 
-	 * @param apikey
-	 * @param username
-	 * @param password
-	 * @param version
-	 */
-
-	public WhispirAPI(String apikey, String username, String password,
-			String version, String debugHost) throws WhispirAPIException {
-
-		if (apikey.equals(null) || username.equals(null)
-				|| password.equals(null) || version.equals(null)) {
+		if (apikey.equals(null) || username.equals(null) || password.equals(null)) {
 			throw new WhispirAPIException(NO_AUTH_ERROR);
 		}
 
-		if ("".equals(apikey) || "".equals(username) || "".equals(password)
-				|| "".equals(version)) {
+		if ("".equals(apikey) || "".equals(username) || "".equals(password)) {
 			throw new WhispirAPIException(NO_AUTH_ERROR);
 		}
 
@@ -128,12 +105,6 @@ public class WhispirAPI {
 
 		if (debugHost != null && !"".equals(debugHost)) {
 			this.setDebugHost(debugHost);
-		}
-
-		if ("v2".equals(version)) {
-			this.version = WHISPIR_MESSAGE_HEADER_V2;
-		} else {
-			this.version = WHISPIR_MESSAGE_HEADER_V1;
 		}
 	}
 
@@ -149,10 +120,6 @@ public class WhispirAPI {
 		this.password = password;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
 	public void setDebugHost(String debugHost) {
 		if (!"".equals(debugHost)) {
 			this.debugHost = debugHost;
@@ -162,11 +129,14 @@ public class WhispirAPI {
 		}
 	}
 
-	public void setHttpsEnabled(boolean httpsEnabled) {
-		this.httpsEnabled = httpsEnabled;
-	}
-
-	public void setProxy(String host, int port, String scheme) {
+	public void setProxy(String host, int port, boolean httpsEnabled) {
+		
+		String scheme = "http";
+		
+		if(httpsEnabled) {
+			scheme = "https";
+		}
+		
 		this.proxy = RequestConfig.custom().setProxy(new HttpHost(host, port, scheme)).build();
 		this.proxyEnabled = true;
 	}
@@ -364,19 +334,26 @@ public class WhispirAPI {
 					&& "enabled".equalsIgnoreCase(options
 							.get("pushNotifications"))) {
 
-				JSONObject features = new JSONObject();
-				features.put("pushNotifications", "enabled");
+				JSONObject pushOptions = new JSONObject();				
+				pushOptions.put("notifications", "enabled");
 
 				if (options.containsKey("pushEscalationMins")) {
-					features.put("pushEscalationMins",
+					pushOptions.put("escalationMins",
 							options.get("pushEscalationMins"));
 				}
+				
+				JSONObject features = new JSONObject();
+				features.put("pushOptions", pushOptions);
 
 				request.put("features", features);
 			}
 
+			//System.out.println("Request: " + request.toString());
+			
 			// Execute the request
 			response = httpPost(workspaceId, request.toString());
+			
+			
 
 		} catch (JSONException e) {
 			throw new WhispirAPIException(
@@ -409,7 +386,7 @@ public class WhispirAPI {
 			credsProvider.setCredentials(AuthScope.ANY, creds);
 		} else {
 			credsProvider.setCredentials(
-					new AuthScope(this.getHost(false), -1), creds);
+					new AuthScope(this.getHost(), -1), creds);
 		}
 		
 		CloseableHttpClient client = HttpClients.custom()
@@ -476,8 +453,8 @@ public class WhispirAPI {
 
 		HttpPost httpPost = new HttpPost(url);
 
-		httpPost.setHeader("Content-Type", this.version);
-		httpPost.setHeader("Accept", this.version);
+		httpPost.setHeader("Content-Type", WHISPIR_MESSAGE_HEADER_V1);
+		httpPost.setHeader("Accept", WHISPIR_MESSAGE_HEADER_V1);
 		
 		try {
 			StringEntity body = new StringEntity(content);
@@ -489,10 +466,9 @@ public class WhispirAPI {
 		return httpPost;
 	}
 
-	private String getHost(boolean ext) {
+	private String getHost() {
 		if (debug) {
-			return ext ? this.debugHost + "/api" : this.debugHost;
-
+			return this.debugHost;
 		} else {
 			return API_HOST;
 		}
@@ -502,15 +478,13 @@ public class WhispirAPI {
 		String url = "";
 		// Set the host to either the debug host or the production host
 		// depending on the debug setting
-		String host = getHost(true);
-
-		String protocol = httpsEnabled ? "https://" : "http://";
+		String host = getHost();
 
 		if (workspaceId != null && !"".equals(workspaceId)) {
-			url = protocol + host + "/workspaces/" + workspaceId + "/messages"
+			url = API_SCHEME + host + "/workspaces/" + workspaceId + "/messages"
 					+ API_EXT + this.apikey;
 		} else {
-			url = protocol + host + "/messages" + API_EXT + this.apikey;
+			url = API_SCHEME + host + "/messages" + API_EXT + this.apikey;
 		}
 
 		return url;

@@ -23,9 +23,8 @@ public class WhispirAPITest {
 	protected static final String TEST_PASSWORD = "12345678";
 
 	// Message content variables for the tests
-
 	protected static final String TEST_RECIPIENT = "61423556682";
-	protected static final String TEST_WORKSPACE_ID = "F3460C2D9E5E2673";
+	protected static final String TEST_WORKSPACE_ID = "";
 	protected static final String TEST_MESSAGE_SUBJECT = "Incident Notification Test.";
 	protected static final String TEST_MESSAGE_BODY = "This is the content of the SMS message.";
 
@@ -33,22 +32,22 @@ public class WhispirAPITest {
 	protected static final String DEBUG_HOST = "";
 	
 	// Proxy Debugging (I installed Squid on my Mac from here http://squidman.net/squidman/index.html)
-	protected static final String PROXY_HOST = "localhost";
-	protected static final int PROXY_PORT = 9080;
-	protected static final String PROXY_SCHEME = "http";
+	protected static final String PROXY_HOST = "";
+	protected static final int PROXY_PORT = 0;
+	protected static final boolean PROXY_HTTPS_ENABLED = false;
 
 	@Before
 	public void setUp() throws Exception {
 		if (!"".equals(DEBUG_HOST)) {
 			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME,
-					TEST_PASSWORD, "v1", DEBUG_HOST);
+					TEST_PASSWORD, DEBUG_HOST);
 		} else {
 			whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME,
 					TEST_PASSWORD);
 		}
 		
 		if (!"".equals(PROXY_HOST)) {
-			whispirAPI.setProxy(PROXY_HOST, PROXY_PORT, PROXY_SCHEME);
+			whispirAPI.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED);
 		}
 	}
 
@@ -152,26 +151,22 @@ public class WhispirAPITest {
 
 	@Test
 	public void testWorkspaceMessage() throws WhispirAPIException {
-		whispirAPI.setApikey(TEST_API_KEY);
-		whispirAPI.setUsername(TEST_USERNAME);
-		whispirAPI.setPassword(TEST_PASSWORD);
 		
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
-				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
+		if(!"".equals(TEST_WORKSPACE_ID)) {
+			whispirAPI.setApikey(TEST_API_KEY);
+			whispirAPI.setUsername(TEST_USERNAME);
+			whispirAPI.setPassword(TEST_PASSWORD);
+			
+			int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+					TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
-		// HTTP202 Accepted
-		assertTrue(response == 202);
-	}
-
-	@Test
-	public void testV2Schema() throws WhispirAPIException {
-		whispirAPI = new WhispirAPI(TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD, "v2", DEBUG_HOST);
+			// HTTP202 Accepted
+			assertTrue(response == 202);
+		} else{
+			assertTrue(true); // NO WORKSPACE PROVIDED SO JUST PASS THE TEST
+		}
 		
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
-				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
-
-		// HTTP415 Unsupported Media Type (it's not implemented yet)
-		assertTrue(response == 415);
+		
 	}
 
 	@Test
@@ -181,7 +176,9 @@ public class WhispirAPITest {
 
 		content.put("body", TEST_MESSAGE_BODY);
 		options.put("type", "defaultNoReply");
-
+		options.put("pushNotifications", "enabled");
+		options.put("pushEscalationMins", "3");
+		
 		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content, options);
 
