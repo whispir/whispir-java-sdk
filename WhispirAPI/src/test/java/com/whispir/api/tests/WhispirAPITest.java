@@ -18,18 +18,18 @@ public class WhispirAPITest {
 
 	// POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 
-	protected static final String TEST_API_KEY = "";
-	protected static final String TEST_USERNAME = "";
-	protected static final String TEST_PASSWORD = "";
+	protected static final String TEST_API_KEY = "1234";
+	protected static final String TEST_USERNAME = "jordan.walsh";
+	protected static final String TEST_PASSWORD = "1234";
 
 	// Message content variables for the tests
-	protected static final String TEST_RECIPIENT = "";
-	protected static final String TEST_WORKSPACE_ID = "";
-	protected static final String TEST_MESSAGE_SUBJECT = "";
-	protected static final String TEST_MESSAGE_BODY = "";
+	protected static final String TEST_RECIPIENT = "61423556682";
+	protected static final String TEST_WORKSPACE_ID = "024E7F71729B5B48";
+	protected static final String TEST_MESSAGE_SUBJECT = "subject";
+	protected static final String TEST_MESSAGE_BODY = "body";
 
 	// Debugging
-	protected static final String DEBUG_HOST = "";
+	protected static final String DEBUG_HOST = "app19.dev1.whispir.net:8080/api";
 	
 	// Proxy Debugging (I installed Squid on my Mac from here http://squidman.net/squidman/index.html)
 	protected static final String PROXY_HOST = "";
@@ -179,8 +179,21 @@ public class WhispirAPITest {
 		options.put("pushNotifications", "enabled");
 		options.put("pushEscalationMins", "3");
 		
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+		int response = whispirAPI.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content, options);
+
+		// HTTP202 Accepted
+		assertTrue(response == 202);
+	}
+	
+	@Test
+	public void testMessageWithFormatting() throws WhispirAPIException {		
+		Map<String, String> content = new HashMap<String, String>();
+
+		content.put("body", "This message has\nsome new line\ncharacters");
+		
+		int response = whispirAPI.sendMessage("",
+				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
 		assertTrue(response == 202);
@@ -193,7 +206,7 @@ public class WhispirAPITest {
 		content.put("email", "This is the content of the Email message.");
 		content.put("emailType", "text/plain");
 
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+		int response = whispirAPI.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
@@ -209,7 +222,7 @@ public class WhispirAPITest {
 		content.put("web", "This is the content of the Web message.");
 		content.put("webType", "text/plain");
 
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+		int response = whispirAPI.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
@@ -225,7 +238,7 @@ public class WhispirAPITest {
 		content.put("web", "<b>This is the content of the Web message.</b>");
 		content.put("webType", "text/html");
 
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+		int response = whispirAPI.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
@@ -239,7 +252,7 @@ public class WhispirAPITest {
 		content.put("voiceIntro", "Welcome");
 		content.put("voice", "This is the content of the voice call");
 
-		int response = whispirAPI.sendMessage(TEST_WORKSPACE_ID,
+		int response = whispirAPI.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted

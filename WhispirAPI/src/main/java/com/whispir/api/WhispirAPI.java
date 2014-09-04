@@ -473,7 +473,7 @@ public class WhispirAPI {
 	}
 	
 	private String getScheme(String host) {
-		if(host.indexOf("app19") > -1 ) {
+		if(host.indexOf("app") > -1) {
 			return "http://";
 		} else {
 			return API_SCHEME;
