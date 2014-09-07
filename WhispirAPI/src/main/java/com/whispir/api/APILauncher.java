@@ -27,11 +27,10 @@ public class APILauncher {
 		
 		if (args.length == 0) {
 			System.out.println("Whispir API Test Bed v1.0");
-			System.out.println("This will prompt you to enter details for a message then send it.");
 			System.out.println("");
 			System.out.println("Nine arguments are required to run this test bed.");
-			System.out.println("1 - debug mode: true/false");
-			System.out.println("2 - server (enter a - if none)");
+			System.out.println("1 - debug mode (Whispir internal only): true/false");
+			System.out.println("2 - debug server url (enter a - if none)");
 			System.out.println("3 - API key");
 			System.out.println("4 - Username");
 			System.out.println("5 - password");
