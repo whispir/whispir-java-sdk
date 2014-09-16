@@ -62,4 +62,8 @@ Whispir will provide a best effort to ensure this repository is bug free.
 
 Please submit any issues via GitHub, or alternatively, fix the code and submit a pull request.
 
+# Terms and Conditions
+
+See the LICENSE.txt and refer to [Whispir's Terms of Service](http://whispir.com/terms-of-service).
+
 
