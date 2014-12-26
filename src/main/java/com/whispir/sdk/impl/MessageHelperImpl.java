@@ -11,16 +11,10 @@ import com.whispir.sdk.WhispirSDKConstants;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 import com.whispir.sdk.interfaces.MessageHelper;
 
-public class MessageHelperImpl implements MessageHelper {
-
-	private WhispirSDK sdk;
-
-	@SuppressWarnings("unused")
-	private MessageHelperImpl() {
-	}
+public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 
 	public MessageHelperImpl(WhispirSDK sdk) {
-		this.sdk = sdk;
+		super(sdk);
 	}
 
 	/**

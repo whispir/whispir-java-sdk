@@ -4,11 +4,12 @@ import java.util.Map;
 
 public class WhispirResponse {
 	private int statusCode;
-	private Map<String,String> response;
-	
+	private String rawResponse;
+	private Map<String, String> responseMap;
+
 	public WhispirResponse() {
 		this.statusCode = 0;
-		this.response = null;
+		this.responseMap = null;
 	}
 
 	public int getStatusCode() {
@@ -16,7 +17,7 @@ public class WhispirResponse {
 	}
 
 	public Map<String, String> getResponse() {
-		return response;
+		return responseMap;
 	}
 
 	public void setStatusCode(int statusCode) {
@@ -24,6 +25,14 @@ public class WhispirResponse {
 	}
 
 	public void setResponse(Map<String, String> response) {
-		this.response = response;
+		this.responseMap = response;
+	}
+	
+	public String getRawResponse() {
+		return rawResponse;
+	}
+
+	public void setRawResponse(String rawResponse) {
+		this.rawResponse = rawResponse;
 	}
 }

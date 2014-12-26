@@ -23,8 +23,10 @@ import org.apache.http.util.EntityUtils;
 
 import com.whispir.sdk.exceptions.WhispirSDKException;
 import com.whispir.sdk.impl.MessageHelperImpl;
+import com.whispir.sdk.impl.ScenarioHelperImpl;
 import com.whispir.sdk.impl.WorkspaceHelperImpl;
 import com.whispir.sdk.interfaces.MessageHelper;
+import com.whispir.sdk.interfaces.ScenarioHelper;
 import com.whispir.sdk.interfaces.WorkspaceHelper;
 
 /**
@@ -41,12 +43,6 @@ import com.whispir.sdk.interfaces.WorkspaceHelper;
 
 public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 
-	private static final String API_SCHEME = "https://";
-	private static final String API_HOST = "api.whispir.com";
-	private static final String API_EXT = "?apikey=";
-	public static final String NO_AUTH_ERROR = "Whispir API Authentication failed. API Key, Username or Password was not provided.";
-	public static final String AUTH_FAILED_ERROR = "Whispir API Authentication failed. API Key, Username or Password were provided but were not correct.";
-
 	private String apikey;
 	private String username;
 	private String password;
@@ -62,6 +58,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 	// Helpers for Modularisation of the code
 	MessageHelper messageHelper;
 	WorkspaceHelper workspaceHelper;
+	ScenarioHelper scenarioHelper;
 
 	@SuppressWarnings("unused")
 	private WhispirSDK() {
@@ -100,11 +97,11 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 
 		if (apikey.equals(null) || username.equals(null)
 				|| password.equals(null)) {
-			throw new WhispirSDKException(NO_AUTH_ERROR);
+			throw new WhispirSDKException(WhispirSDKConstants.NO_AUTH_ERROR);
 		}
 
 		if ("".equals(apikey) || "".equals(username) || "".equals(password)) {
-			throw new WhispirSDKException(NO_AUTH_ERROR);
+			throw new WhispirSDKException(WhispirSDKConstants.NO_AUTH_ERROR);
 		}
 
 		this.apikey = apikey;
@@ -186,9 +183,18 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 	// * Workspaces SDK Methods
 	// ***************************************************
 
-	public Map<String, String> getWorkspaces()
+	public WhispirResponse getWorkspaces()
 			throws WhispirSDKException {
 		return this.workspaceHelper.getWorkspaces();
+	}
+	
+	// ***************************************************
+	// * Scenarios SDK Methods
+	// ***************************************************
+
+	public WhispirResponse getScenarios()
+			throws WhispirSDKException {
+		return this.scenarioHelper.getScenarios();
 	}
 
 	// ***************************************************
@@ -197,6 +203,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 	private void initHelpers() {
 		this.messageHelper = new MessageHelperImpl(this);
 		this.workspaceHelper = new WorkspaceHelperImpl(this);
+		this.scenarioHelper = new ScenarioHelperImpl(this);
 	}
 
 	public WhispirResponse get(String resource, String workspace)
@@ -255,9 +262,13 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 		case WhispirSDKConstants.WORKSPACES_RESOURCE:
 			header = WhispirSDKConstants.WHISPIR_WORKSPACE_HEADER_V1;
 			break;
+			
+		case WhispirSDKConstants.SCENARIOS_RESOURCE:
+			header = WhispirSDKConstants.WHISPIR_SCENARIO_HEADER_V1;
+			break;
 
 		default:
-			throw new WhispirSDKException("Resource specified was not found. Expecting Workspaces or Messages");
+			throw new WhispirSDKException("Resource specified was not found. Expecting Workspaces, Messages or Scenarios");
 		}
 			
 		request.setHeader("Content-Type", header);
@@ -268,7 +279,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 		if (debug) {
 			return this.debugHost;
 		} else {
-			return API_HOST;
+			return WhispirSDKConstants.API_HOST;
 		}
 	}
 
@@ -276,7 +287,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 		if (host.indexOf("app") > -1) {
 			return "http://";
 		} else {
-			return API_SCHEME;
+			return WhispirSDKConstants.API_SCHEME;
 		}
 	}
 
@@ -289,9 +300,9 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 
 		if (workspaceId != null && !"".equals(workspaceId)) {
 			url = scheme + host + "/workspaces/" + workspaceId + "/" + resource
-					+ API_EXT + this.apikey;
+					+ WhispirSDKConstants.API_EXT + this.apikey;
 		} else {
-			url = scheme + host + "/" + resource + API_EXT + this.apikey;
+			url = scheme + host + "/" + resource + WhispirSDKConstants.API_EXT + this.apikey;
 		}
 
 		return url;
@@ -356,8 +367,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 				}
 				
 				wr.setStatusCode(statusCode);
-				String httpResponse = EntityUtils.toString(response.getEntity());
-				System.out.println(httpResponse);
+				wr.setRawResponse(EntityUtils.toString(response.getEntity()));
 				
 			} finally {
 				EntityUtils.consume(response.getEntity());

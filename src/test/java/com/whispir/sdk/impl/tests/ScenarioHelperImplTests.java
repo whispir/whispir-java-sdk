@@ -1,7 +1,6 @@
 package com.whispir.sdk.impl.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +10,7 @@ import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 import com.whispir.sdk.tests.WhispirSDKTest;
 
-public class WorkspaceHelperImplTests extends WhispirSDKTest {
+public class ScenarioHelperImplTests extends WhispirSDKTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -24,15 +23,16 @@ public class WorkspaceHelperImplTests extends WhispirSDKTest {
 	}
 
 	@Test
-	public void testGetWorkspaces() throws WhispirSDKException {
+	public void testGetScenarios() throws WhispirSDKException {
 		whispirSDK.setApikey(TEST_API_KEY);
 		whispirSDK.setUsername(TEST_USERNAME);
 		whispirSDK.setPassword(TEST_PASSWORD);
 		
-		WhispirResponse response = whispirSDK.getWorkspaces();
+		WhispirResponse response = whispirSDK.getScenarios();
 
 		assertEquals(response.getStatusCode(), 200);
 		assertTrue(response.getResponse().size() > 0);
 	}
+
 
 }
