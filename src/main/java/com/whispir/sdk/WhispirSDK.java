@@ -2,7 +2,6 @@ package com.whispir.sdk;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.Header;
@@ -13,16 +12,20 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.http.util.EntityUtils;
 
 import com.whispir.sdk.exceptions.WhispirSDKException;
+import com.whispir.sdk.impl.MessageHelperImpl;
+import com.whispir.sdk.impl.WorkspaceHelperImpl;
+import com.whispir.sdk.interfaces.MessageHelper;
+import com.whispir.sdk.interfaces.WorkspaceHelper;
 
 /**
  * WhispirAPI
@@ -36,9 +39,8 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
  * 
  */
 
-public class WhispirSDK {
+public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 
-	private static final String WHISPIR_MESSAGE_HEADER_V1 = "application/vnd.whispir.message-v1+json";
 	private static final String API_SCHEME = "https://";
 	private static final String API_HOST = "api.whispir.com";
 	private static final String API_EXT = "?apikey=";
@@ -56,6 +58,10 @@ public class WhispirSDK {
 	// Used for proxy purposes
 	private RequestConfig proxy;
 	private boolean proxyEnabled;
+
+	// Helpers for Modularisation of the code
+	MessageHelper messageHelper;
+	WorkspaceHelper workspaceHelper;
 
 	@SuppressWarnings("unused")
 	private WhispirSDK() {
@@ -80,7 +86,8 @@ public class WhispirSDK {
 	/**
 	 * Instantiates the WhispirAPI object.
 	 * 
-	 * Requires the four parameters to be provided. DebugHost can be provided in the form xxxxxxx.whispir.net:8080 / xxxx.whispir.com
+	 * Requires the four parameters to be provided. DebugHost can be provided in
+	 * the form xxxxxxx.whispir.net:8080 / xxxx.whispir.com
 	 * 
 	 * @param apikey
 	 * @param username
@@ -88,9 +95,11 @@ public class WhispirSDK {
 	 * @param debugHost
 	 */
 
-	public WhispirSDK(String apikey, String username, String password, String debugHost) throws WhispirSDKException {
+	public WhispirSDK(String apikey, String username, String password,
+			String debugHost) throws WhispirSDKException {
 
-		if (apikey.equals(null) || username.equals(null) || password.equals(null)) {
+		if (apikey.equals(null) || username.equals(null)
+				|| password.equals(null)) {
 			throw new WhispirSDKException(NO_AUTH_ERROR);
 		}
 
@@ -106,6 +115,8 @@ public class WhispirSDK {
 		if (debugHost != null && !"".equals(debugHost)) {
 			this.setDebugHost(debugHost);
 		}
+
+		initHelpers();
 	}
 
 	public void setApikey(String apikey) {
@@ -130,249 +141,166 @@ public class WhispirSDK {
 	}
 
 	public void setProxy(String host, int port, boolean httpsEnabled) {
-		
+
 		String scheme = "http";
-		
-		if(httpsEnabled) {
+
+		if (httpsEnabled) {
 			scheme = "https";
 		}
-		
-		this.proxy = RequestConfig.custom().setProxy(new HttpHost(host, port, scheme)).build();
+
+		this.proxy = RequestConfig.custom()
+				.setProxy(new HttpHost(host, port, scheme)).build();
 		this.proxyEnabled = true;
 	}
 
-	/**
-	 * <p>
-	 * Allows a user to send a message in the default My Company workspace.
-	 * </p>
-	 * <p>
-	 * For more complex content, the user should use the Map content overloaded
-	 * function.
-	 * </p>
-	 * 
-	 * @param recipient
-	 *            - the mobile number or email address of the recipient of the
-	 *            message
-	 * @param subject
-	 *            - the textual subject of the message
-	 * @param content
-	 *            - the textual content of the Push/SMS message.
-	 * @return response - the HTTP response code of the performed action.
-	 */
+	// ***************************************************
+	// * Messages SDK Methods
+	// ***************************************************
+
 	public int sendMessage(String recipient, String subject, String content)
 			throws WhispirSDKException {
-		return sendMessage("", recipient, subject, content);
+		return this.messageHelper.sendMessage(recipient, subject, content);
 	}
 
-	/**
-	 * <p>
-	 * Allows a user to send a message in the specified Workspace ID.
-	 * </p>
-	 * <p>
-	 * For more complex content, the user should use the Map content overloaded
-	 * function.
-	 * </p>
-	 * 
-	 * @param recipient
-	 *            - the mobile number or email address of the recipient of the
-	 *            message
-	 * @param subject
-	 *            - the textual subject of the message
-	 * @param content
-	 *            - the textual content of the Push/SMS message.
-	 * @return response - the HTTP response code of the performed action.
-	 */
 	public int sendMessage(String workspaceId, String recipient,
 			String subject, String content) throws WhispirSDKException {
-		Map<String, String> smsContent = new HashMap<String, String>();
-		smsContent.put("body", content);
-		return sendMessage(workspaceId, recipient, subject, smsContent);
+		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
+				content);
 	}
 
-	/**
-	 * <p>
-	 * Allows a user to send a message in any workspace, with any combination of
-	 * content within the content map.
-	 * </p>
-	 * <p>
-	 * The content Map is expected to provide the following information.
-	 * </p>
-	 * <p>
-	 * For SMS/Push
-	 * </p>
-	 * <p>
-	 * - body - The content for the Push/SMS message.
-	 * </p>
-	 * 
-	 * @param recipient
-	 *            - the mobile number or email address of the recipient of the
-	 *            message
-	 * @param subject
-	 *            - the textual subject of the message
-	 * @param content
-	 *            - the Map of content for the Whispir Message
-	 * @return response - the HTTP response code of the performed action.
-	 */
 	public int sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content)
 			throws WhispirSDKException {
-		Map<String, String> options = new HashMap<String, String>();
-		return sendMessage(workspaceId, recipient, subject, content, options);
+		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
+				content);
 	}
 
-	/**
-	 * Allows a user to send a message in any workspace, with any combination of
-	 * content within the content map
-	 * <p>
-	 * The content Map is expected to provide the following information:
-	 * </p>
-	 * <p>
-	 * For SMS/Push
-	 * </p>
-	 * <p>
-	 * - body - The content of the SMS/Push Message
-	 * </p>
-	 * <p>
-	 * </p>
-	 * <p>
-	 * The options Map is expected to provide the following information:
-	 * </p>
-	 * <p>
-	 * - type - defaultNoReply (specifies if the message cannot be replied to)
-	 * </p>
-	 * <p>
-	 * - pushEscalation - true/false (string)
-	 * </p>
-	 * <p>
-	 * - escalationMins - 3,4,5,10 (string)
-	 * </p>
-	 * <p>
-	 * </p>
-	 * 
-	 * @param recipient
-	 *            - the mobile number or email address of the recipient of the
-	 *            message
-	 * @param subject
-	 *            - the textual subject of the message
-	 * @param content
-	 *            - the Map of content for the Whispir Message
-	 * @param options
-	 *            - the Map of options for the Whispir Message
-	 * @return response - the HTTP response code of the performed action.
-	 */
 	public int sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content,
 			Map<String, String> options) throws WhispirSDKException {
-		int response = 0;
+		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
+				content, options);
+	}
+	
+	// ***************************************************
+	// * Workspaces SDK Methods
+	// ***************************************************
 
-		if (recipient == null || recipient.length() < 8) {
-			// error with the recipient information, returning HTTP 422.
-			return 422;
-		}
-
-		try {
-			JSONObject request = new JSONObject();
-
-			request.put("to", recipient);
-			request.put("subject", subject);
-
-			// Check for the body in the map
-			if (content.containsKey("body") && !"".equals(content.get("body"))) {
-				request.put("body", content.get("body"));
-			}
-
-			// Check for the email in the map
-			if (content.containsKey("email")
-					&& !"".equals(content.get("email"))) {
-				JSONObject email = new JSONObject();
-				email.put("body", content.get("email"));
-
-				if (content.containsKey("emailType")
-						&& !"".equals(content.get("emailType"))) {
-					email.put("type", content.get("emailType"));
-				}
-
-				request.put("email", email);
-			}
-
-			// Check for the voice content in the map
-			if (content.containsKey("voice")
-					&& !"".equals(content.get("voice"))) {
-				JSONObject voice = new JSONObject();
-				voice.put("body", content.get("voice"));
-				voice.put("type",
-						"ConfCall:,ConfAccountNo:,ConfPinNo:,ConfModPinNo:,Pin:");
-
-				if (content.containsKey("voiceIntro")
-						&& !"".equals(content.get("voiceIntro"))) {
-					voice.put("header", content.get("voiceIntro"));
-				}
-
-				request.put("voice", voice);
-			}
-
-			// Check for the web content in the map
-			if (content.containsKey("web") && !"".equals(content.get("web"))) {
-				JSONObject web = new JSONObject();
-				web.put("body", content.get("web"));
-
-				if (content.containsKey("webType")
-						&& !"".equals(content.get("webType"))) {
-					web.put("type", content.get("webType"));
-				}
-
-				request.put("web", web);
-			}
-
-			// Check for the noreply options in the map
-			if (options.containsKey("type")) {
-				request.put("type", options.get("type"));
-			}
-
-			// Check for the push to SMS escalation options in the map
-			if (options.containsKey("pushNotifications")
-					&& "enabled".equalsIgnoreCase(options
-							.get("pushNotifications"))) {
-
-				JSONObject pushOptions = new JSONObject();				
-				pushOptions.put("notifications", "enabled");
-
-				if (options.containsKey("pushEscalationMins")) {
-					pushOptions.put("escalationMins",
-							options.get("pushEscalationMins"));
-				}
-				
-				JSONObject features = new JSONObject();
-				features.put("pushOptions", pushOptions);
-
-				request.put("features", features);
-			}
-
-			//System.out.println("Request: " + request.toString());
-			
-			// Execute the request
-			response = httpPost(workspaceId, request.toString());
-
-		} catch (JSONException e) {
-			throw new WhispirSDKException(
-					"Error occurred parsing the object with the content provided."
-							+ e.getMessage());
-		}
-
-		return response;
+	public Map<String, String> getWorkspaces()
+			throws WhispirSDKException {
+		return this.workspaceHelper.getWorkspaces();
 	}
 
 	// ***************************************************
 	// * Private Methods
 	// ***************************************************
-	private int httpPost(String workspace, String jsonContent)
-			throws WhispirSDKException {
-		HttpPost httpPost = (HttpPost) createPost(workspace, jsonContent);
-		return executeRequest(httpPost);
+	private void initHelpers() {
+		this.messageHelper = new MessageHelperImpl(this);
+		this.workspaceHelper = new WorkspaceHelperImpl(this);
 	}
 
-	private int executeRequest(HttpRequestBase httpRequest)
+	public WhispirResponse get(String resource, String workspace)
 			throws WhispirSDKException {
+		HttpGet httpGet = (HttpGet) createGet(resource, workspace);
+		return executeRequest(httpGet);
+	}
+
+	public int post(String resource, String workspace, String jsonContent)
+			throws WhispirSDKException {
+		HttpPost httpPost = (HttpPost) createPost(resource, workspace,
+				jsonContent);
+		return executeRequest(httpPost).getStatusCode();
+	}
+
+	private HttpRequestBase createGet(String resource, String workspaceId)
+			throws WhispirSDKException {
+		// Create a method instance.
+		String url = buildUrl(workspaceId, resource);
+
+		HttpGet httpGet = new HttpGet(url);
+
+		setHeaders(httpGet,resource);
+
+		return httpGet;
+	}
+
+	private HttpRequestBase createPost(String resource, String workspaceId,
+			String content) throws WhispirSDKException {
+		// Create a method instance.
+		String url = buildUrl(workspaceId, resource);
+
+		HttpPost httpPost = new HttpPost(url);
+
+		setHeaders(httpPost,resource);
+
+		try {
+			StringEntity body = new StringEntity(content);
+			httpPost.setEntity(body);
+		} catch (UnsupportedEncodingException e) {
+			throw new WhispirSDKException(e.getMessage());
+		}
+
+		return httpPost;
+	}
+	
+	private void setHeaders(HttpRequestBase request, String resource) throws WhispirSDKException{
+		
+		String header = "";
+		
+		switch (resource) {
+		case WhispirSDKConstants.MESSAGES_RESOURCE:
+			header = WhispirSDKConstants.WHISPIR_MESSAGE_HEADER_V1;
+			break;
+			
+		case WhispirSDKConstants.WORKSPACES_RESOURCE:
+			header = WhispirSDKConstants.WHISPIR_WORKSPACE_HEADER_V1;
+			break;
+
+		default:
+			throw new WhispirSDKException("Resource specified was not found. Expecting Workspaces or Messages");
+		}
+			
+		request.setHeader("Content-Type", header);
+		request.setHeader("Accept", header);
+	}
+
+	private String getHost() {
+		if (debug) {
+			return this.debugHost;
+		} else {
+			return API_HOST;
+		}
+	}
+
+	private String getScheme(String host) {
+		if (host.indexOf("app") > -1) {
+			return "http://";
+		} else {
+			return API_SCHEME;
+		}
+	}
+
+	private String buildUrl(String workspaceId, String resource) {
+		String url = "";
+		// Set the host to either the debug host or the production host
+		// depending on the debug setting
+		String host = getHost();
+		String scheme = getScheme(host);
+
+		if (workspaceId != null && !"".equals(workspaceId)) {
+			url = scheme + host + "/workspaces/" + workspaceId + "/" + resource
+					+ API_EXT + this.apikey;
+		} else {
+			url = scheme + host + "/" + resource + API_EXT + this.apikey;
+		}
+
+		return url;
+	}
+
+	private WhispirResponse executeRequest(HttpRequestBase httpRequest)
+			throws WhispirSDKException {
+		
+		WhispirResponse wr = new WhispirResponse();
 		int statusCode = 0;
 
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -383,21 +311,21 @@ public class WhispirSDK {
 		if (debug) {
 			credsProvider.setCredentials(AuthScope.ANY, creds);
 		} else {
-			credsProvider.setCredentials(
-					new AuthScope(this.getHost(), -1), creds);
+			credsProvider.setCredentials(new AuthScope(this.getHost(), -1),
+					creds);
 		}
-		
+
 		CloseableHttpClient client = HttpClients.custom()
 				.setDefaultCredentialsProvider(credsProvider).build();
 
 		try {
-			
-			if(proxyEnabled) {
+
+			if (proxyEnabled) {
 				httpRequest.setConfig(this.proxy);
 			}
-			
+
 			CloseableHttpResponse response = client.execute(httpRequest);
-			
+
 			try {
 				statusCode = response.getStatusLine().getStatusCode();
 
@@ -426,12 +354,19 @@ public class WhispirSDK {
 						}
 					}
 				}
+				
+				wr.setStatusCode(statusCode);
+				String httpResponse = EntityUtils.toString(response.getEntity());
+				System.out.println(httpResponse);
+				
 			} finally {
+				EntityUtils.consume(response.getEntity());
 				response.close();
 			}
 
 		} catch (IOException e) {
-			System.err.println("Message Failed - Connection Error: " + e.getMessage());
+			System.err.println("Message Failed - Connection Error: "
+					+ e.getMessage());
 		} finally {
 			// Release the connection.
 			try {
@@ -441,59 +376,7 @@ public class WhispirSDK {
 			}
 		}
 		
-		return statusCode;
-	}
 
-	private HttpRequestBase createPost(String workspaceId, String content)
-			throws WhispirSDKException {
-		// Create a method instance.
-		String url = buildUrl(workspaceId);
-
-		HttpPost httpPost = new HttpPost(url);
-
-		httpPost.setHeader("Content-Type", WHISPIR_MESSAGE_HEADER_V1);
-		httpPost.setHeader("Accept", WHISPIR_MESSAGE_HEADER_V1);
-		
-		try {
-			StringEntity body = new StringEntity(content);
-			httpPost.setEntity(body);
-		} catch(UnsupportedEncodingException e) {
-			throw new WhispirSDKException(e.getMessage());
-		}
-		
-		return httpPost;
-	}
-
-	private String getHost() {
-		if (debug) {	
-			return this.debugHost;
-		} else {
-			return API_HOST;
-		}
-	}
-	
-	private String getScheme(String host) {
-		if(host.indexOf("app") > -1) {
-			return "http://";
-		} else {
-			return API_SCHEME;
-		}
-	}
-
-	private String buildUrl(String workspaceId) {
-		String url = "";
-		// Set the host to either the debug host or the production host
-		// depending on the debug setting
-		String host = getHost();
-		String scheme = getScheme(host);
-
-		if (workspaceId != null && !"".equals(workspaceId)) {
-			url = scheme + host + "/workspaces/" + workspaceId + "/messages"
-					+ API_EXT + this.apikey;
-		} else {
-			url = scheme + host + "/messages" + API_EXT + this.apikey;
-		}
-
-		return url;
+		return wr;
 	}
 }
