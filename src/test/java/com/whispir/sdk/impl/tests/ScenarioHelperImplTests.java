@@ -33,6 +33,35 @@ public class ScenarioHelperImplTests extends WhispirSDKTest {
 		assertEquals(response.getStatusCode(), 200);
 		assertTrue(response.getResponse().size() > 0);
 	}
+	
+	@Test
+	public void testGetWorkspaceScenarios() throws WhispirSDKException {
+		whispirSDK.setApikey(TEST_API_KEY);
+		whispirSDK.setUsername(TEST_USERNAME);
+		whispirSDK.setPassword(TEST_PASSWORD);
+		
+		WhispirResponse response = whispirSDK.getScenarios(TEST_WORKSPACE_ID);
+
+		assertEquals(response.getStatusCode(), 200);
+		assertTrue(response.getResponse().size() > 0);
+	}
+	
+	@Test
+	public void testSendScenario() throws WhispirSDKException {
+		whispirSDK.setApikey(TEST_API_KEY);
+		whispirSDK.setUsername(TEST_USERNAME);
+		whispirSDK.setPassword(TEST_PASSWORD);
+		
+		WhispirResponse response = whispirSDK.getScenarios(TEST_WORKSPACE_ID);
+
+		assertEquals(response.getStatusCode(), 200);
+		
+		String scenarioId = response.getResponse().get("Weather warning to JTW");
+		
+		int status = whispirSDK.sendScenario(TEST_WORKSPACE_ID, scenarioId);
+		
+		assertEquals(status, 200);
+	}
 
 
 }

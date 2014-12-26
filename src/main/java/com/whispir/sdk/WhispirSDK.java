@@ -41,7 +41,7 @@ import com.whispir.sdk.interfaces.WorkspaceHelper;
  * 
  */
 
-public class WhispirSDK implements MessageHelper,WorkspaceHelper {
+public class WhispirSDK implements MessageHelper,WorkspaceHelper,ScenarioHelper {
 
 	private String apikey;
 	private String username;
@@ -196,6 +196,16 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 			throws WhispirSDKException {
 		return this.scenarioHelper.getScenarios();
 	}
+	
+	public WhispirResponse getScenarios(String workspaceId)
+			throws WhispirSDKException {
+		return this.scenarioHelper.getScenarios(workspaceId);
+	}
+	
+	public int sendScenario(String workspaceId, String scenarioId)
+			throws WhispirSDKException {
+		return this.scenarioHelper.sendScenario(workspaceId, scenarioId);
+	}
 
 	// ***************************************************
 	// * Private Methods
@@ -206,39 +216,56 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 		this.scenarioHelper = new ScenarioHelperImpl(this);
 	}
 
-	public WhispirResponse get(String resource, String workspace)
+	public WhispirResponse get(String resourceType, String workspaceId)
 			throws WhispirSDKException {
-		HttpGet httpGet = (HttpGet) createGet(resource, workspace);
+		HttpGet httpGet = (HttpGet) createGet(resourceType, workspaceId);
 		return executeRequest(httpGet);
 	}
 
-	public int post(String resource, String workspace, String jsonContent)
+	public int post(String resourceType, String workspaceId, String jsonContent)
 			throws WhispirSDKException {
-		HttpPost httpPost = (HttpPost) createPost(resource, workspace,
+		return this.post(resourceType, "", workspaceId, jsonContent);
+	}
+	
+	/**
+	 * Executes an HTTP Post to the API on a specific resource.  Useful for Sending Scenarios and updating Activiy logs.
+	 * 
+	 * @param resourceType - the type of the resource from WhispirSDKConstants
+	 * @param resourceId - the ID of the specific resource to have the POST executed on
+	 * @param workspaceId - the workspace that the resourceId lives in
+	 * @param jsonContent - Any other content that is required to be POSTed in the request
+	 * @return
+	 * @throws WhispirSDKException
+	 */
+	
+	public int post(String resourceType, String resourceId, String workspaceId, String jsonContent)
+			throws WhispirSDKException {
+		HttpPost httpPost = (HttpPost) createPost(resourceType, resourceId, workspaceId,
 				jsonContent);
 		return executeRequest(httpPost).getStatusCode();
 	}
 
-	private HttpRequestBase createGet(String resource, String workspaceId)
+	private HttpRequestBase createGet(String resourceType, String workspaceId)
 			throws WhispirSDKException {
 		// Create a method instance.
-		String url = buildUrl(workspaceId, resource);
+		String url = buildUrl(workspaceId, resourceType);
 
 		HttpGet httpGet = new HttpGet(url);
 
-		setHeaders(httpGet,resource);
+		setHeaders(httpGet,resourceType);
 
 		return httpGet;
 	}
 
-	private HttpRequestBase createPost(String resource, String workspaceId,
+	private HttpRequestBase createPost(String resourceType, String resourceId, String workspaceId,
 			String content) throws WhispirSDKException {
+		
+		String url = buildUrl(workspaceId, resourceType, resourceId);
+		
 		// Create a method instance.
-		String url = buildUrl(workspaceId, resource);
-
 		HttpPost httpPost = new HttpPost(url);
 
-		setHeaders(httpPost,resource);
+		setHeaders(httpPost,resourceType);
 
 		try {
 			StringEntity body = new StringEntity(content);
@@ -250,11 +277,11 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 		return httpPost;
 	}
 	
-	private void setHeaders(HttpRequestBase request, String resource) throws WhispirSDKException{
+	private void setHeaders(HttpRequestBase request, String resourceType) throws WhispirSDKException{
 		
 		String header = "";
 		
-		switch (resource) {
+		switch (resourceType) {
 		case WhispirSDKConstants.MESSAGES_RESOURCE:
 			header = WhispirSDKConstants.WHISPIR_MESSAGE_HEADER_V1;
 			break;
@@ -290,22 +317,39 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper {
 			return WhispirSDKConstants.API_SCHEME;
 		}
 	}
+	
+	private String buildUrl(String workspaceId, String resourceType) {
+		return buildUrl(workspaceId, resourceType, "");
+	}
 
-	private String buildUrl(String workspaceId, String resource) {
-		String url = "";
+	private String buildUrl(String workspaceId, String resourceType, String resourceId) {
+		
+		StringBuilder url = new StringBuilder();
+		
 		// Set the host to either the debug host or the production host
 		// depending on the debug setting
 		String host = getHost();
 		String scheme = getScheme(host);
+		
+		url.append(scheme).append(host);
 
 		if (workspaceId != null && !"".equals(workspaceId)) {
-			url = scheme + host + "/workspaces/" + workspaceId + "/" + resource
-					+ WhispirSDKConstants.API_EXT + this.apikey;
-		} else {
-			url = scheme + host + "/" + resource + WhispirSDKConstants.API_EXT + this.apikey;
+			url.append("/workspaces/" + workspaceId);
 		}
+		
+		if (resourceType != null && !"".equals(resourceType)) {
+			url.append("/" + resourceType);
+		}
+		
+		if (resourceId != null && !"".equals(resourceId)) {
+			url.append("/" + resourceId);
+		}
+		
+		url.append(WhispirSDKConstants.API_EXT + this.apikey);
+		
+		System.out.println("Executing URL: " + url.toString());
 
-		return url;
+		return url.toString();
 	}
 
 	private WhispirResponse executeRequest(HttpRequestBase httpRequest)

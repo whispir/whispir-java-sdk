@@ -12,5 +12,6 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
  */
 public interface ScenarioHelper {
 	public WhispirResponse getScenarios() throws WhispirSDKException;
-	public int sendScenario(String scenarioId) throws WhispirSDKException;
+	public WhispirResponse getScenarios(String workspaceId) throws WhispirSDKException;
+	public int sendScenario(String workspaceId, String scenarioId) throws WhispirSDKException;
 }
