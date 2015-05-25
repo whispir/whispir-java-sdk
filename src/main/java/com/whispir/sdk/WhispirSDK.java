@@ -54,6 +54,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper,ScenarioHelper 
 	// Used for proxy purposes
 	private RequestConfig proxy;
 	private boolean proxyEnabled;
+	private Credentials proxyCredentials;
 
 	// Helpers for Modularisation of the code
 	MessageHelper messageHelper;
@@ -108,6 +109,7 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper,ScenarioHelper 
 		this.username = username;
 		this.password = password;
 		this.proxyEnabled = false;
+		this.proxyCredentials=null;
 
 		if (debugHost != null && !"".equals(debugHost)) {
 			this.setDebugHost(debugHost);
@@ -148,6 +150,12 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper,ScenarioHelper 
 		this.proxy = RequestConfig.custom()
 				.setProxy(new HttpHost(host, port, scheme)).build();
 		this.proxyEnabled = true;
+	}
+	
+	public void setProxyCredentials(String proxyuser, String proxypassword) {
+		
+		this.proxyCredentials = new UsernamePasswordCredentials(proxyuser,proxypassword);
+	
 	}
 
 	// ***************************************************
@@ -368,6 +376,11 @@ public class WhispirSDK implements MessageHelper,WorkspaceHelper,ScenarioHelper 
 		} else {
 			credsProvider.setCredentials(new AuthScope(this.getHost(), -1),
 					creds);
+			if (proxyEnabled&&this.proxyCredentials!=null) {
+				credsProvider.setCredentials(new AuthScope(this.proxy.getProxy().getHostName(), -1),
+						this.proxyCredentials);
+				}
+				
 		}
 
 		CloseableHttpClient client = HttpClients.custom()
