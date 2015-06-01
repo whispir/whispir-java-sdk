@@ -2,20 +2,18 @@ package com.whispir.sdk.tests;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 
 public class WhispirSDKTest {
 	
 	protected WhispirSDK whispirSDK;
-
+ 
 	// POPULATE THESE OR ALL THE TESTS WILL FAIL!!!
 
 	protected static final String TEST_API_KEY = "";
@@ -35,33 +33,73 @@ public class WhispirSDKTest {
 	protected static final String PROXY_HOST = "";
 	protected static final int PROXY_PORT = 0;
 	protected static final boolean PROXY_HTTPS_ENABLED = false;
+	protected static final String PROXY_USERNAME = "";
+	protected static final String PROXY_PASSWORD = "";
+	
+	//Squid Proxy Error Code is 407 (Proxy Authentication Required)
+	protected static final int PROXY_ERROR_CODE = 407;
 
 	@Before
 	public void setUp() throws Exception {
 		if (!"".equals(DEBUG_HOST)) {
-			whispirSDK = new WhispirSDK(TEST_API_KEY, TEST_USERNAME,
+			this.whispirSDK = new WhispirSDK(TEST_API_KEY, TEST_USERNAME,
 					TEST_PASSWORD, DEBUG_HOST);
 		} else {
-			whispirSDK = new WhispirSDK(TEST_API_KEY, TEST_USERNAME,
+			this.whispirSDK = new WhispirSDK(TEST_API_KEY, TEST_USERNAME,
 					TEST_PASSWORD);
 		}
 		
 		if (!"".equals(PROXY_HOST)) {
-			whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED);
+			
+			if(!"".equals(PROXY_USERNAME) && !"".equals(PROXY_PASSWORD)) {
+				this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, PROXY_USERNAME, PROXY_PASSWORD);
+			} else {
+				this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED);
+			}
 		}
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		this.whispirSDK = null;
+	}
+	
+	@Test
+	public void testBadProxyUsername() throws WhispirSDKException {
+		
+		this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, "bad", PROXY_PASSWORD);
+		
+		this.whispirSDK.setApikey(TEST_API_KEY);
+		this.whispirSDK.setUsername(TEST_USERNAME);
+		this.whispirSDK.setPassword(TEST_PASSWORD);
+		
+		WhispirResponse response = this.whispirSDK.getWorkspaces();
+
+		assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
+	}
+	
+	@Test
+	public void testBadProxyPassword() throws WhispirSDKException {
+		
+		this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, PROXY_USERNAME, "bad");
+		
+		this.whispirSDK.setApikey(TEST_API_KEY);
+		this.whispirSDK.setUsername(TEST_USERNAME);
+		this.whispirSDK.setPassword(TEST_PASSWORD);
+		
+		WhispirResponse response = this.whispirSDK.getWorkspaces();
+
+		
+		assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
 	}
 
 	@Test
 	public void testBadAPIKey() throws WhispirSDKException {
-		whispirSDK.setApikey("1234");
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
+		this.whispirSDK.setApikey("1234");
+		this.whispirSDK.setUsername(TEST_USERNAME);
+		this.whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
+		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		if(!"".equals(DEBUG_HOST)) {
 			assertTrue(response == 202);
@@ -73,11 +111,11 @@ public class WhispirSDKTest {
 
 	@Test
 	public void testBadUsername() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername("blahblahblah");
-		whispirSDK.setPassword(TEST_PASSWORD);
+		this.whispirSDK.setApikey(TEST_API_KEY);
+		this.whispirSDK.setUsername("blahblahblah");
+		this.whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT,
+		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		// HTTP401 Unauthorized Access
@@ -86,11 +124,11 @@ public class WhispirSDKTest {
 
 	@Test
 	public void testBadPassword() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword("blahblahblah");
+		this.whispirSDK.setApikey(TEST_API_KEY);
+		this.whispirSDK.setUsername(TEST_USERNAME);
+		this.whispirSDK.setPassword("blahblahblah");
 		
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT,
+		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		// HTTP401 Unauthorized Access
