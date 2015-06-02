@@ -31,6 +31,11 @@ public class WorkspaceHelperImpl extends BaseHelperImpl implements WorkspaceHelp
 		Map<String, String> map = new TreeMap<String,String>();
 		
 		try {
+			
+			if(response.getStatusCode() != 200) {
+				return response;
+			}
+			
 			JSONObject obj = new JSONObject(response.getRawResponse());
 			
 			JSONArray workspaces = obj.getJSONArray("workspaces");
