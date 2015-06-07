@@ -67,30 +67,38 @@ public class WhispirSDKTest {
 	@Test
 	public void testBadProxyUsername() throws WhispirSDKException {
 		
-		this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, "bad", PROXY_PASSWORD);
-		
-		this.whispirSDK.setApikey(TEST_API_KEY);
-		this.whispirSDK.setUsername(TEST_USERNAME);
-		this.whispirSDK.setPassword(TEST_PASSWORD);
-		
-		WhispirResponse response = this.whispirSDK.getWorkspaces();
+		if(!"".equals(PROXY_HOST)) {
+			this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, "bad", PROXY_PASSWORD);
+			
+			this.whispirSDK.setApikey(TEST_API_KEY);
+			this.whispirSDK.setUsername(TEST_USERNAME);
+			this.whispirSDK.setPassword(TEST_PASSWORD);
+			
+			WhispirResponse response = this.whispirSDK.getWorkspaces();
 
-		assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
+			assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
+		} else {
+			assertTrue(true);
+		}
 	}
 	
 	@Test
 	public void testBadProxyPassword() throws WhispirSDKException {
 		
-		this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, PROXY_USERNAME, "bad");
-		
-		this.whispirSDK.setApikey(TEST_API_KEY);
-		this.whispirSDK.setUsername(TEST_USERNAME);
-		this.whispirSDK.setPassword(TEST_PASSWORD);
-		
-		WhispirResponse response = this.whispirSDK.getWorkspaces();
+		if(!"".equals(PROXY_HOST)) {
+			this.whispirSDK.setProxy(PROXY_HOST, PROXY_PORT, PROXY_HTTPS_ENABLED, PROXY_USERNAME, "bad");
+			
+			this.whispirSDK.setApikey(TEST_API_KEY);
+			this.whispirSDK.setUsername(TEST_USERNAME);
+			this.whispirSDK.setPassword(TEST_PASSWORD);
+			
+			WhispirResponse response = this.whispirSDK.getWorkspaces();
 
+			
+			assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
+		}
 		
-		assertTrue(response.getStatusCode() == PROXY_ERROR_CODE);
+		assertTrue(true);
 	}
 
 	@Test
@@ -99,13 +107,13 @@ public class WhispirSDKTest {
 		this.whispirSDK.setUsername(TEST_USERNAME);
 		this.whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
+		WhispirResponse response = this.whispirSDK.sendMessage(TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		if(!"".equals(DEBUG_HOST)) {
-			assertTrue(response == 202);
+			assertTrue(response.getStatusCode() == 202);
 		} else {
 			// HTTP403 Permission Denied / Forbidden
-			assertTrue(response == 403);
+			assertTrue(response.getStatusCode() == 403);
 		}
 	}
 
@@ -115,11 +123,11 @@ public class WhispirSDKTest {
 		this.whispirSDK.setUsername("blahblahblah");
 		this.whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
+		WhispirResponse response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		// HTTP401 Unauthorized Access
-		assertTrue(response == 401);
+		assertTrue(response.getStatusCode() == 401);
 	}
 
 	@Test
@@ -128,10 +136,10 @@ public class WhispirSDKTest {
 		this.whispirSDK.setUsername(TEST_USERNAME);
 		this.whispirSDK.setPassword("blahblahblah");
 		
-		int response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
+		WhispirResponse response = this.whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		// HTTP401 Unauthorized Access
-		assertTrue(response == 401);
+		assertTrue(response.getStatusCode() == 401);
 	}
 }

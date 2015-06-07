@@ -20,12 +20,12 @@ public class SDKExample {
 			WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD);
 
 			// Send the message
-			int status = sdk.sendMessage("61400000000",
+			WhispirResponse response = sdk.sendMessage("61400000000",
 					"This is the subject of my SMS",
 					"This is the content of my SMS");
 
 			// Status should be 202 Accepted
-			System.out.println("Status: " + status);
+			System.out.println("Status: " + response.getStatusCode());
 
 			//------------------------------------------------------
 			
@@ -65,10 +65,10 @@ public class SDKExample {
 			String scenarioId = "...";
 			String workspaceId = "...";
 			
-			status = sdk.sendScenario(workspaceId, scenarioId);
+			response = sdk.sendScenario(workspaceId, scenarioId);
 			
 			// Status should be 202 Accepted
-			System.out.println("Status: " + status);
+			System.out.println("Status: " + response.getStatusCode());
 
 		} catch (WhispirSDKException e) {
 			e.printStackTrace();

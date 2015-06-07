@@ -2,6 +2,7 @@ package com.whispir.sdk.interfaces;
 
 import java.util.Map;
 
+import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 /**
  * @author jordan
@@ -15,17 +16,17 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
 
 public interface MessageHelper {
 
-	public int sendMessage(String recipient, String subject, String content)
+	public WhispirResponse sendMessage(String recipient, String subject, String content)
 			throws WhispirSDKException;
 
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, String content) throws WhispirSDKException;
 
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content)
 			throws WhispirSDKException;
 	
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content,
 			Map<String, String> options) throws WhispirSDKException;
 }

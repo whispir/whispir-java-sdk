@@ -58,5 +58,32 @@ public class WorkspaceHelperImpl extends BaseHelperImpl implements WorkspaceHelp
 		
 		return response;
 	}
-
+	
+	@Override
+	public WhispirResponse createWorkspace(Map<String, String> details) throws WhispirSDKException {
+		
+		WhispirResponse response = new WhispirResponse();
+		
+		if (details == null) {
+			return response;
+		}
+		
+		JSONObject workspace = new JSONObject();
+		
+		try {
+			workspace.put("projectName", details.get("name"));
+			workspace.put("projectNumber", details.get("number"));
+			workspace.put("status", "A");
+			workspace.put("billingcostcentre", details.get("billingcostcentre"));
+			
+			response = sdk.post(WhispirSDKConstants.WORKSPACES_RESOURCE, "", workspace.toString());
+			
+		} catch (JSONException e) {
+			throw new WhispirSDKException(
+					"Error occurred parsing the object with the content provided."
+							+ e.getMessage());
+		}
+		
+		return response;
+	}
 }

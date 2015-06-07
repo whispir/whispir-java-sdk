@@ -94,10 +94,52 @@ public class ScenarioHelperImpl extends BaseHelperImpl implements
 	}
 
 	@Override
-	public int sendScenario(String workspaceId, String scenarioId)
+	public WhispirResponse sendScenario(String workspaceId, String scenarioId)
 			throws WhispirSDKException {
-		int status = sdk.post(WhispirSDKConstants.SCENARIOS_RESOURCE, scenarioId, workspaceId, "");
+		return sdk.post(WhispirSDKConstants.SCENARIOS_RESOURCE, scenarioId, workspaceId, "");
+	}
+	
+	@Override
+	public WhispirResponse createScenario(String recipients,
+			Map<String, String> details, Map<String, String> content) throws WhispirSDKException {
+		
+		return createScenario("", recipients, details, content);
+	}
 
-		return status;
+	@Override
+	public WhispirResponse createScenario(String workspaceId, String recipients,
+			Map<String, String> details, Map<String, String> content) throws WhispirSDKException {
+		
+		WhispirResponse response = new WhispirResponse();
+		
+		if (recipients == null || recipients.length() < 8) {
+			// error with the recipient information, returning HTTP 422.
+			response.setStatusCode(422);
+			return response;
+		}
+		
+		JSONObject scenario = new JSONObject();
+		JSONObject message = new JSONObject();
+		
+		try {
+			scenario.put("title", details.get("title"));
+			scenario.put("description", details.get("description"));
+			scenario.put("allowedUsers", details.get("allowedUsers"));
+			
+			message.put("to", recipients);
+			message.put("subject", content.get("subject"));
+			message.put("body", content.get("body"));
+			
+			scenario.put("message", message);
+			
+			response = sdk.post(WhispirSDKConstants.SCENARIOS_RESOURCE, workspaceId, scenario.toString());
+			
+			return response;
+			
+		} catch (JSONException e) {
+			throw new WhispirSDKException(
+					"Error occurred parsing the object with the content provided."
+							+ e.getMessage());
+		}
 	}
 }

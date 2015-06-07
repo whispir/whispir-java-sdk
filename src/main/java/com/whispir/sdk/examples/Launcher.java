@@ -3,6 +3,7 @@ package com.whispir.sdk.examples;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 
@@ -66,7 +67,7 @@ public class Launcher {
 					sdk.setProxy("localhost", 9080, false);
 				}
 				
-				int response = 0;
+				WhispirResponse response = new WhispirResponse();
 				
 				Map<String,String> content = new HashMap<String,String>();
 				Map<String,String> options = new HashMap<String,String>();

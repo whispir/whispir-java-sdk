@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.WhispirSDKConstants;
 import com.whispir.sdk.exceptions.WhispirSDKException;
@@ -35,7 +36,7 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 	 *            - the textual content of the Push/SMS message.
 	 * @return response - the HTTP response code of the performed action.
 	 */
-	public int sendMessage(String recipient, String subject, String content)
+	public WhispirResponse sendMessage(String recipient, String subject, String content)
 			throws WhispirSDKException {
 		return sendMessage("", recipient, subject, content);
 	}
@@ -58,7 +59,7 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 	 *            - the textual content of the Push/SMS message.
 	 * @return response - the HTTP response code of the performed action.
 	 */
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, String content) throws WhispirSDKException {
 		Map<String, String> smsContent = new HashMap<String, String>();
 		smsContent.put("body", content);
@@ -89,7 +90,7 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 	 *            - the Map of content for the Whispir Message
 	 * @return response - the HTTP response code of the performed action.
 	 */
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content)
 			throws WhispirSDKException {
 		Map<String, String> options = new HashMap<String, String>();
@@ -136,14 +137,15 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 	 *            - the Map of options for the Whispir Message
 	 * @return response - the HTTP response code of the performed action.
 	 */
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content,
 			Map<String, String> options) throws WhispirSDKException {
-		int response = 0;
+		WhispirResponse response = new WhispirResponse();
 
 		if (recipient == null || recipient.length() < 8) {
 			// error with the recipient information, returning HTTP 422.
-			return 422;
+			response.setStatusCode(422);
+			return response;
 		}
 
 		try {
@@ -227,14 +229,12 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 			// System.out.println("Request: " + request.toString());
 
 			// Execute the request
-			response = sdk.post(WhispirSDKConstants.MESSAGES_RESOURCE, workspaceId, request.toString());
-
+			return sdk.post(WhispirSDKConstants.MESSAGES_RESOURCE, workspaceId, request.toString());
+	
 		} catch (JSONException e) {
 			throw new WhispirSDKException(
 					"Error occurred parsing the object with the content provided."
 							+ e.getMessage());
 		}
-
-		return response;
 	}
 }

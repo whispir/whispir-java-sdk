@@ -2,9 +2,11 @@ package com.whispir.sdk;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -12,6 +14,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -139,12 +142,13 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 			this.debug = false;
 		}
 	}
-	
+
 	public void setProxy(String host, int port, boolean httpsEnabled) {
-		this.setProxy(host,port,httpsEnabled,"","");
+		this.setProxy(host, port, httpsEnabled, "", "");
 	}
-	
-	public void setProxy(String host, int port, boolean httpsEnabled, String proxyUsername, String proxyPassword) {
+
+	public void setProxy(String host, int port, boolean httpsEnabled,
+			String proxyUsername, String proxyPassword) {
 
 		String scheme = "http";
 
@@ -155,9 +159,10 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		this.proxy = RequestConfig.custom()
 				.setProxy(new HttpHost(host, port, scheme)).build();
 		this.proxyEnabled = true;
-		
-		if(!"".equals(proxyUsername) && !"".equals(proxyPassword)) {
-			this.proxyCredentials = new UsernamePasswordCredentials(proxyUsername,proxyPassword);
+
+		if (!"".equals(proxyUsername) && !"".equals(proxyPassword)) {
+			this.proxyCredentials = new UsernamePasswordCredentials(
+					proxyUsername, proxyPassword);
 		}
 	}
 
@@ -165,25 +170,25 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 	// * Messages SDK Methods
 	// ***************************************************
 
-	public int sendMessage(String recipient, String subject, String content)
+	public WhispirResponse sendMessage(String recipient, String subject, String content)
 			throws WhispirSDKException {
 		return this.messageHelper.sendMessage(recipient, subject, content);
 	}
 
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, String content) throws WhispirSDKException {
 		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
 				content);
 	}
 
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content)
 			throws WhispirSDKException {
 		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
 				content);
 	}
 
-	public int sendMessage(String workspaceId, String recipient,
+	public WhispirResponse sendMessage(String workspaceId, String recipient,
 			String subject, Map<String, String> content,
 			Map<String, String> options) throws WhispirSDKException {
 		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
@@ -196,6 +201,10 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 	public WhispirResponse getWorkspaces() throws WhispirSDKException {
 		return this.workspaceHelper.getWorkspaces();
+	}
+	
+	public WhispirResponse createWorkspace(Map<String, String> details) throws WhispirSDKException {
+		return this.workspaceHelper.createWorkspace(details);
 	}
 
 	// ***************************************************
@@ -211,67 +220,37 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		return this.scenarioHelper.getScenarios(workspaceId);
 	}
 
-	public int sendScenario(String workspaceId, String scenarioId)
+	public WhispirResponse sendScenario(String workspaceId, String scenarioId)
 			throws WhispirSDKException {
 		return this.scenarioHelper.sendScenario(workspaceId, scenarioId);
 	}
-
-	// ***************************************************
-	// * Private Methods
-	// ***************************************************
-	private void initHelpers() {
-		this.messageHelper = new MessageHelperImpl(this);
-		this.workspaceHelper = new WorkspaceHelperImpl(this);
-		this.scenarioHelper = new ScenarioHelperImpl(this);
+	
+	public WhispirResponse createScenario(String workspaceId, String recipients, Map<String, String> details,
+			Map<String, String> content) throws WhispirSDKException {
+		return this.scenarioHelper.createScenario(workspaceId, recipients, details, content);
 	}
 
-	public WhispirResponse get(String resourceType, String workspaceId)
-			throws WhispirSDKException {
-		HttpGet httpGet = (HttpGet) createGet(resourceType, workspaceId);
-		return executeRequest(httpGet);
+	public WhispirResponse createScenario(String recipients, Map<String, String> details,
+			Map<String, String> content) throws WhispirSDKException {
+		return createScenario("", recipients, details, content);
 	}
-
-	public int post(String resourceType, String workspaceId, String jsonContent)
+	
+	// ***************************************************
+	// * POST Methods
+	// ***************************************************
+	
+	public WhispirResponse post(String resourceType, String workspaceId, String jsonContent)
 			throws WhispirSDKException {
 		return this.post(resourceType, "", workspaceId, jsonContent);
 	}
 
-	/**
-	 * Executes an HTTP Post to the API on a specific resource. Useful for
-	 * Sending Scenarios and updating Activity logs.
-	 * 
-	 * @param resourceType
-	 *            - the type of the resource from WhispirSDKConstants
-	 * @param resourceId
-	 *            - the ID of the specific resource to have the POST executed on
-	 * @param workspaceId
-	 *            - the workspace that the resourceId lives in
-	 * @param jsonContent
-	 *            - Any other content that is required to be POSTed in the
-	 *            request
-	 * @return
-	 * @throws WhispirSDKException
-	 */
-
-	public int post(String resourceType, String resourceId, String workspaceId,
+	public WhispirResponse post(String resourceType, String resourceId, String workspaceId,
 			String jsonContent) throws WhispirSDKException {
 		HttpPost httpPost = (HttpPost) createPost(resourceType, resourceId,
 				workspaceId, jsonContent);
-		return executeRequest(httpPost).getStatusCode();
+		return executeRequest(httpPost);
 	}
-
-	private HttpRequestBase createGet(String resourceType, String workspaceId)
-			throws WhispirSDKException {
-		// Create a method instance.
-		String url = buildUrl(workspaceId, resourceType);
-
-		HttpGet httpGet = new HttpGet(url);
-
-		setHeaders(httpGet, resourceType);
-
-		return httpGet;
-	}
-
+	
 	private HttpRequestBase createPost(String resourceType, String resourceId,
 			String workspaceId, String content) throws WhispirSDKException {
 
@@ -292,6 +271,62 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		return httpPost;
 	}
 
+	// ***************************************************
+	// * GET Methods
+	// ***************************************************
+
+	public WhispirResponse get(String resourceType, String workspaceId)
+			throws WhispirSDKException {
+		HttpGet httpGet = (HttpGet) createGet(resourceType, workspaceId);
+		return executeRequest(httpGet);
+	}
+
+	private HttpRequestBase createGet(String resourceType, String workspaceId)
+			throws WhispirSDKException {
+		// Create a method instance.
+		String url = buildUrl(workspaceId, resourceType);
+
+		HttpGet httpGet = new HttpGet(url);
+
+		setHeaders(httpGet, resourceType);
+
+		return httpGet;
+	}
+	
+	
+	// ***************************************************
+	// * DELETE Methods
+	// ***************************************************
+
+	public WhispirResponse delete(String resourceType, String workspaceId, String resourceId)
+			throws WhispirSDKException {
+		HttpDelete httpDelete = (HttpDelete) createDelete(resourceType, workspaceId, resourceId);
+		return executeRequest(httpDelete);
+	}
+
+	private HttpRequestBase createDelete(String resourceType, String workspaceId, String resourceId)
+			throws WhispirSDKException {
+		// Create a method instance.
+		String url = buildUrl(workspaceId, resourceType, resourceId);
+
+		HttpDelete httpDelete = new HttpDelete(url);
+
+		setHeaders(httpDelete, resourceType);
+
+		return httpDelete;
+	}
+
+	
+	// ***************************************************
+	// * Private Methods
+	// ***************************************************
+	
+	private void initHelpers() {
+		this.messageHelper = new MessageHelperImpl(this);
+		this.workspaceHelper = new WorkspaceHelperImpl(this);
+		this.scenarioHelper = new ScenarioHelperImpl(this);
+	}
+	
 	private void setHeaders(HttpRequestBase request, String resourceType)
 			throws WhispirSDKException {
 
@@ -434,7 +469,22 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 				}
 
 				wr.setStatusCode(statusCode);
-				wr.setRawResponse(EntityUtils.toString(response.getEntity()));
+				
+				//Check if this is a delete
+				if(statusCode != 204) {
+					wr.setRawResponse(EntityUtils.toString(response.getEntity()));
+				}
+				
+				Map<String,String> headerMap = new HashMap<String,String>();
+				
+				HeaderIterator headers = response.headerIterator();
+				
+				while(headers.hasNext()) {
+					Header h = headers.nextHeader();
+					headerMap.put(h.getName(), h.getValue());
+				}
+				
+				wr.setResponseHeaders(headerMap);
 
 			} finally {
 				EntityUtils.consume(response.getEntity());

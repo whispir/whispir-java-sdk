@@ -9,10 +9,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 import com.whispir.sdk.tests.WhispirSDKTest;
 
-public class MessageHelperImplTests extends WhispirSDKTest {
+public class MessageHelperImplTest extends WhispirSDKTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -30,11 +31,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		whispirSDK.setUsername(TEST_USERNAME);
 		whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = whispirSDK.sendMessage("1", TEST_MESSAGE_SUBJECT,
+		WhispirResponse response = whispirSDK.sendMessage("1", TEST_MESSAGE_SUBJECT,
 				TEST_MESSAGE_BODY);
 
 		// HTTP422 Unprocessable Entity
-		assertTrue(response == 422);
+		assertTrue(response.getStatusCode() == 422);
 	}
 
 	@Test
@@ -43,11 +44,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		whispirSDK.setUsername(TEST_USERNAME);
 		whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT, "",
+		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT, "",
 				TEST_MESSAGE_BODY);
 
 		// HTTP422 Unprocessable Entity
-		assertTrue(response == 422);
+		assertTrue(response.getStatusCode() == 422);
 	}
 
 	@Test
@@ -56,11 +57,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		whispirSDK.setUsername(TEST_USERNAME);
 		whispirSDK.setPassword(TEST_PASSWORD);
 		
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT,
+		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, "");
 
 		// HTTP422 Unprocessable Entity
-		assertTrue(response == 422);
+		assertTrue(response.getStatusCode() == 422);
 	}
 
 	@Test
@@ -69,11 +70,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		whispirSDK.setUsername(TEST_USERNAME);
 		whispirSDK.setPassword(TEST_PASSWORD);
 
-		int response = whispirSDK.sendMessage(TEST_RECIPIENT,
+		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 	@Test
@@ -84,11 +85,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 			whispirSDK.setUsername(TEST_USERNAME);
 			whispirSDK.setPassword(TEST_PASSWORD);
 			
-			int response = whispirSDK.sendMessage(TEST_WORKSPACE_ID,
+			WhispirResponse response = whispirSDK.sendMessage(TEST_WORKSPACE_ID,
 					TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
 			// HTTP202 Accepted
-			assertTrue(response == 202);
+			assertTrue(response.getStatusCode() == 202);
 		} else{
 			assertTrue(true); // NO WORKSPACE PROVIDED SO JUST PASS THE TEST
 		}
@@ -106,11 +107,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		options.put("pushNotifications", "enabled");
 		options.put("pushEscalationMins", "3");
 		
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content, options);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 	
 	@Test
@@ -119,11 +120,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 
 		content.put("body", "This message has\nsome new line\ncharacters");
 		
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 	@Test
@@ -133,11 +134,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		content.put("email", "This is the content of the Email message.");
 		content.put("emailType", "text/plain");
 
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 	@Test
@@ -149,11 +150,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		content.put("web", "This is the content of the Web message.");
 		content.put("webType", "text/plain");
 
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 	@Test
@@ -165,11 +166,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		content.put("web", "<b>This is the content of the Web message.</b>");
 		content.put("webType", "text/html");
 
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 	@Test
@@ -179,11 +180,11 @@ public class MessageHelperImplTests extends WhispirSDKTest {
 		content.put("voiceIntro", "Welcome");
 		content.put("voice", "This is the content of the voice call");
 
-		int response = whispirSDK.sendMessage("",
+		WhispirResponse response = whispirSDK.sendMessage("",
 				TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, content);
 
 		// HTTP202 Accepted
-		assertTrue(response == 202);
+		assertTrue(response.getStatusCode() == 202);
 	}
 
 }

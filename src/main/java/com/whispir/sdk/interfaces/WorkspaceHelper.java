@@ -1,10 +1,12 @@
 package com.whispir.sdk.interfaces;
 
+import java.util.Map;
+
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 /**
  * @author jordan
- * @version 1.0
+ * @version 2.0
  * @since 2.0
  * 
  * <p>Interface that must be implemented by both the WhispirSDK object and the implementing object.</p>
@@ -12,4 +14,5 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
  */
 public interface WorkspaceHelper {
 	public WhispirResponse getWorkspaces() throws WhispirSDKException;
+	public WhispirResponse createWorkspace(Map<String, String> details) throws WhispirSDKException;
 }

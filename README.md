@@ -1,4 +1,24 @@
-# Installing
+# Updates 7/06/2015 - Release 2.1.0
+
+## Added the following:
+
+* Support for Basic Proxy Authentication (thanks to a pull request by vlsinitsyn)
+* Support for Creating Scenarios
+* Support for Creating Workspaces
+
+## Refactored:
+
+* I changed the default response type to WhispirResponse from int for POST requests.  This was because I needed to get the header information for managing Scenarios and it's just a generally cleaner approach.
+
+## Bugs/Known Issues:
+
+* Currently, you can't create a Scenario in the default workspace, you need to specify a workspace ID.  This is due to a bug in Whispir that will be fixed in an upcoming release.
+* After creating workspaces via the API, a login to Whispir is required. This rebuilds the cache and allows the workspace to be used. A subseqent release of Whispir will resolve this issue.
+
+Let me know if you've got any questions: @jordwalsh
+
+
+# Building/Installing the SDK
 
 Whispir's SDK allows Java Developers to get up and running sending messages with Whispir's API quickly.
 
@@ -11,7 +31,7 @@ mvn clean install -DskipTests=true
 This will produce two JAR fies:
 
 ```shell
-/target/WhispirSDK-2.0.0-with-dependencies.jar
+/target/WhispirSDK-2.1.0-with-dependencies.jar
 /target/WhispirSDK.jar
 ```
 
@@ -52,12 +72,12 @@ public class SDKExample {
       WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD);
 
       // Send the message
-      int status = sdk.sendMessage("61400000000",
+      WhispirResponse response = sdk.sendMessage("61400000000",
           "This is the subject of my SMS",
           "This is the content of my SMS");
 
       // Status should be 202 Accepted
-      System.out.println("Status: " + status);
+      System.out.println("Status: " + response.getStatusCode());
 
       //------------------------------------------------------
       

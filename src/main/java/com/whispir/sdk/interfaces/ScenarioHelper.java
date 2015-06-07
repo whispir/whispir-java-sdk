@@ -1,5 +1,7 @@
 package com.whispir.sdk.interfaces;
 
+import java.util.Map;
+
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 /**
@@ -13,5 +15,7 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
 public interface ScenarioHelper {
 	public WhispirResponse getScenarios() throws WhispirSDKException;
 	public WhispirResponse getScenarios(String workspaceId) throws WhispirSDKException;
-	public int sendScenario(String workspaceId, String scenarioId) throws WhispirSDKException;
+	public WhispirResponse createScenario(String recipients, Map<String, String> details, Map<String,String> content) throws WhispirSDKException;
+	public WhispirResponse createScenario(String workspaceId, String recipients, Map<String, String> details, Map<String,String> content) throws WhispirSDKException;	
+	public WhispirResponse sendScenario(String workspaceId, String scenarioId) throws WhispirSDKException;
 }
