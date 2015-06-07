@@ -22,38 +22,7 @@ public class ScenarioHelperImpl extends BaseHelperImpl implements
 
 	@Override
 	public WhispirResponse getScenarios() throws WhispirSDKException {
-		WhispirResponse response = sdk.get(
-				WhispirSDKConstants.SCENARIOS_RESOURCE, "");
-
-		Map<String, String> map = new TreeMap<String, String>();
-
-		try {
-			JSONObject obj = new JSONObject(response.getRawResponse());
-
-			JSONArray scenarios = obj.getJSONArray("scenarios");
-			int scenarioLength = scenarios.length();
-
-			for (int i = 0; i < scenarioLength; i++) {
-				String scenarioName = (String) scenarios.getJSONObject(i).get(
-						"title");
-				String fullUrl = (String) scenarios.getJSONObject(i)
-						.getJSONArray("link").getJSONObject(0).get("uri");
-
-				String id = fullUrl.substring(fullUrl.lastIndexOf("/") + 1,
-						fullUrl.lastIndexOf("?"));
-
-				System.out.println(scenarioName + " " + id);
-
-				map.put(scenarioName, id);
-			}
-
-		} catch (JSONException e) {
-			throw new WhispirSDKException(e.getMessage());
-		}
-
-		response.setResponse(map);
-
-		return response;
+		return this.getScenarios("");
 	}
 
 	@Override
