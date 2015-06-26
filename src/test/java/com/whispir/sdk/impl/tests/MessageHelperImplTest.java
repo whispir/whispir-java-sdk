@@ -3,6 +3,7 @@ package com.whispir.sdk.impl.tests;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.After;
@@ -18,6 +19,9 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		whispirSDK.setApikey(TEST_API_KEY);
+		whispirSDK.setUsername(TEST_USERNAME);
+		whispirSDK.setPassword(TEST_PASSWORD);
 	}
 
 	@After
@@ -27,10 +31,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 	
 	@Test
 	public void testBadRecipient() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
-		
 		WhispirResponse response = whispirSDK.sendMessage("1", TEST_MESSAGE_SUBJECT,
 				TEST_MESSAGE_BODY);
 
@@ -40,10 +40,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 
 	@Test
 	public void testBadSubject() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
-		
 		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT, "",
 				TEST_MESSAGE_BODY);
 
@@ -53,10 +49,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 
 	@Test
 	public void testBadContent() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
-		
 		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, "");
 
@@ -66,10 +58,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 
 	@Test
 	public void testCompanyMessage() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
-
 		WhispirResponse response = whispirSDK.sendMessage(TEST_RECIPIENT,
 				TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
@@ -81,10 +69,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 	public void testWorkspaceMessage() throws WhispirSDKException {
 		
 		if(!"".equals(TEST_WORKSPACE_ID)) {
-			whispirSDK.setApikey(TEST_API_KEY);
-			whispirSDK.setUsername(TEST_USERNAME);
-			whispirSDK.setPassword(TEST_PASSWORD);
-			
 			WhispirResponse response = whispirSDK.sendMessage(TEST_WORKSPACE_ID,
 					TEST_RECIPIENT, TEST_MESSAGE_SUBJECT, TEST_MESSAGE_BODY);
 
@@ -93,8 +77,6 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 		} else{
 			assertTrue(true); // NO WORKSPACE PROVIDED SO JUST PASS THE TEST
 		}
-		
-		
 	}
 
 	@Test
@@ -187,4 +169,36 @@ public class MessageHelperImplTest extends WhispirSDKTest {
 		assertTrue(response.getStatusCode() == 202);
 	}
 
+	@Test
+	public void testGetMessages() throws WhispirSDKException {
+		WhispirResponse response = whispirSDK.getMessages();
+
+		//System.out.println(response.getResponse());
+		
+		// HTTP200 Accepted
+		assertTrue(response.getStatusCode() == 200);
+	}
+	
+	@Test
+	public void testGetSingleMessage() throws WhispirSDKException {
+		
+		WhispirResponse messages = whispirSDK.getMessages();
+		WhispirResponse message = null;
+		
+		Iterator<String> keys = messages.getResponse().keySet().iterator();
+		
+		while(keys.hasNext()) {
+			String id = messages.getResponse().get(keys.next());
+			
+			if(!"".equals(id)) {
+				message = whispirSDK.getMessage(id);
+			}
+		}
+		
+		assertTrue(message != null);
+		
+		// HTTP200 Accepted
+		assertTrue(message.getStatusCode() == 200);
+	}
+	
 }

@@ -194,6 +194,14 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		return this.messageHelper.sendMessage(workspaceId, recipient, subject,
 				content, options);
 	}
+	
+	public WhispirResponse getMessages() throws WhispirSDKException {
+		return this.messageHelper.getMessages();
+	}
+	
+	public WhispirResponse getMessage(String messageId) throws WhispirSDKException {
+		return this.messageHelper.getMessage(messageId);
+	}
 
 	// ***************************************************
 	// * Workspaces SDK Methods
@@ -201,6 +209,10 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 	public WhispirResponse getWorkspaces() throws WhispirSDKException {
 		return this.workspaceHelper.getWorkspaces();
+	}
+	
+	public WhispirResponse getWorkspace(String workspaceId) throws WhispirSDKException {
+		return this.workspaceHelper.getWorkspace(workspaceId);
 	}
 	
 	public WhispirResponse createWorkspace(Map<String, String> details) throws WhispirSDKException {
@@ -275,16 +287,21 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 	// * GET Methods
 	// ***************************************************
 
-	public WhispirResponse get(String resourceType, String workspaceId)
+	public WhispirResponse get(String resourceType, String workspaceId, String resourceId)
 			throws WhispirSDKException {
-		HttpGet httpGet = (HttpGet) createGet(resourceType, workspaceId);
+		HttpGet httpGet = (HttpGet) createGet(resourceType, workspaceId, resourceId);
 		return executeRequest(httpGet);
 	}
+	
+	public WhispirResponse get(String resourceType, String workspaceId)
+			throws WhispirSDKException {
+		return this.get(resourceType, workspaceId, ""); 
+	}
 
-	private HttpRequestBase createGet(String resourceType, String workspaceId)
+	private HttpRequestBase createGet(String resourceType, String workspaceId, String resourceId)
 			throws WhispirSDKException {
 		// Create a method instance.
-		String url = buildUrl(workspaceId, resourceType);
+		String url = buildUrl(workspaceId, resourceType, resourceId);
 
 		HttpGet httpGet = new HttpGet(url);
 
@@ -370,10 +387,6 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		}
 	}
 
-	private String buildUrl(String workspaceId, String resourceType) {
-		return buildUrl(workspaceId, resourceType, "");
-	}
-
 	private String buildUrl(String workspaceId, String resourceType,
 			String resourceId) {
 
@@ -386,11 +399,13 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 		url.append(scheme).append(host);
 
-		if (workspaceId != null && !"".equals(workspaceId)) {
+		if ((workspaceId != null && !"".equals(workspaceId)) || resourceType.equals(WhispirSDKConstants.WORKSPACES_RESOURCE)) {
 			url.append("/workspaces/" + workspaceId);
 		}
 
-		if (resourceType != null && !"".equals(resourceType)) {
+		//check that the resource type doesn't equal WORKSPACE as the URL will end up as:
+		//workspaces/:id/workspaces.
+		if (resourceType != null && !"".equals(resourceType) && !resourceType.equals(WhispirSDKConstants.WORKSPACES_RESOURCE)) {
 			url.append("/" + resourceType);
 		}
 
@@ -505,4 +520,5 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 		return wr;
 	}
+
 }

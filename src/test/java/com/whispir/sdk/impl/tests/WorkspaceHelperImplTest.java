@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -20,6 +21,9 @@ public class WorkspaceHelperImplTest extends WhispirSDKTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		whispirSDK.setApikey(TEST_API_KEY);
+		whispirSDK.setUsername(TEST_USERNAME);
+		whispirSDK.setPassword(TEST_PASSWORD);
 	}
 
 	@After
@@ -29,14 +33,14 @@ public class WorkspaceHelperImplTest extends WhispirSDKTest {
 
 	@Test
 	public void testGetWorkspaces() throws WhispirSDKException {
-		whispirSDK.setApikey(TEST_API_KEY);
-		whispirSDK.setUsername(TEST_USERNAME);
-		whispirSDK.setPassword(TEST_PASSWORD);
-		
-		WhispirResponse response = whispirSDK.getWorkspaces();
-
-		assertEquals(response.getStatusCode(), 200);
-		assertTrue(response.getResponse().size() > 0);
+		if(!"".equals(TEST_WORKSPACE_ID)) {
+			WhispirResponse response = whispirSDK.getWorkspaces();
+	
+			assertEquals(response.getStatusCode(), 200);
+			assertTrue(response.getResponse().size() > 0);
+		} else {
+			assertTrue(true);
+		}
 	}
 	
 	@Test
@@ -56,6 +60,19 @@ public class WorkspaceHelperImplTest extends WhispirSDKTest {
 		WhispirResponse response = whispirSDK.createWorkspace(details);
 		
 		assertEquals(response.getStatusCode(), 201);
+	}
+	
+	@Test
+	public void testGetSingleWorkspace() throws WhispirSDKException {
+		
+		if(!"".equals(TEST_WORKSPACE_ID)) {
+			WhispirResponse workspace = whispirSDK.getWorkspace(TEST_WORKSPACE_ID);
+			assertTrue(workspace.getResponse() != null);
+			
+			if(!"".equals(TEST_WORKSPACE_NAME)){
+				assertTrue(TEST_WORKSPACE_NAME.equals(workspace.getResponse().get("name")));
+			}
+		}
 	}
 
 }

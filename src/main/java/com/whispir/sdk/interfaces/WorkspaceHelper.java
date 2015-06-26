@@ -14,5 +14,6 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
  */
 public interface WorkspaceHelper {
 	public WhispirResponse getWorkspaces() throws WhispirSDKException;
+	public WhispirResponse getWorkspace(String workspaceId) throws WhispirSDKException;
 	public WhispirResponse createWorkspace(Map<String, String> details) throws WhispirSDKException;
 }

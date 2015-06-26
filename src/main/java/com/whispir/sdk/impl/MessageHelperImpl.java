@@ -2,7 +2,9 @@ package com.whispir.sdk.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -236,5 +238,67 @@ public class MessageHelperImpl extends BaseHelperImpl implements MessageHelper {
 					"Error occurred parsing the object with the content provided."
 							+ e.getMessage());
 		}
+	}
+	
+	/**
+	 * <p>
+	 * Allows a user to retrieve a list of messages.
+	 * </p>
+	 * 
+	 * @return response - the WhispirResponse object of the performed action.
+	 */
+	public WhispirResponse getMessages() throws WhispirSDKException {
+		WhispirResponse response = new WhispirResponse();
+		
+		response = sdk.get(WhispirSDKConstants.MESSAGES_RESOURCE, "");
+		
+		Map<String, String> map = new TreeMap<String, String>();
+
+		try {
+			JSONObject obj = new JSONObject(response.getRawResponse());
+
+			JSONArray messages = obj.getJSONArray("messages");
+			int messagesLength = messages.length();
+
+			for (int i = 0; i < messagesLength; i++) {
+				String subject = (String) messages.getJSONObject(i).get(
+						"subject");
+				String fullUrl = (String) messages.getJSONObject(i)
+						.getJSONArray("link").getJSONObject(0).get("uri");
+
+				String id = fullUrl.substring(fullUrl.lastIndexOf("/") + 1,
+						fullUrl.lastIndexOf("?"));
+
+				System.out.println(subject + " " + id);
+
+				map.put(subject, id);
+			}
+
+		} catch (JSONException e) {
+			throw new WhispirSDKException(e.getMessage());
+		}
+
+		response.setResponse(map);
+
+		return response;
+	}
+	
+	/**
+	 * <p>
+	 * Allows a user to retrieve a single message from the API.
+	 * </p>
+	 * @param messageId - the ID of the message to retrieve
+	 * @return response - the WhispirResponse object of the performed action.
+	 */
+	public WhispirResponse getMessage(String messageId) throws WhispirSDKException {
+		WhispirResponse response = new WhispirResponse();
+		
+		response = sdk.get(WhispirSDKConstants.MESSAGES_RESOURCE, "", messageId);
+		
+		Map<String, String> map = new TreeMap<String, String>();
+
+		response.setResponse(map);
+
+		return response;
 	}
 }

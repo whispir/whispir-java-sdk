@@ -26,7 +26,7 @@ public class WorkspaceHelperImpl extends BaseHelperImpl implements WorkspaceHelp
 	 */
 	@Override
 	public WhispirResponse getWorkspaces() throws WhispirSDKException {
-		WhispirResponse response = sdk.get(WhispirSDKConstants.WORKSPACES_RESOURCE, "");
+		WhispirResponse response = this.getWorkspace("");
 		
 		Map<String, String> map = new TreeMap<String,String>();
 		
@@ -55,6 +55,37 @@ public class WorkspaceHelperImpl extends BaseHelperImpl implements WorkspaceHelp
 		}
 		
 		response.setResponse(map);
+		
+		return response;
+	}
+	
+	/**
+	 * <p>
+	 * Allows a user to search for a specific Workspace by ID
+	 * @return WhispirResponse the workspace that was searched for
+	 */
+	@Override
+	public WhispirResponse getWorkspace(String workspaceId) throws WhispirSDKException {
+		WhispirResponse response = sdk.get(WhispirSDKConstants.WORKSPACES_RESOURCE, workspaceId);
+		Map<String, String> map = new TreeMap<String,String>();
+		
+		if("".equals(workspaceId) || workspaceId == null){
+			return response;
+		}
+		
+		try {
+			JSONObject obj = new JSONObject(response.getRawResponse());
+			
+			map.put("name", obj.getString("projectName"));
+			map.put("number", obj.getString("projectNumber"));
+			map.put("billingcostcentre", obj.getString("billingcostcentre"));
+			map.put("id", workspaceId);
+			
+			response.setResponse(map);
+			
+		} catch (JSONException e) {
+			throw new WhispirSDKException(e.getMessage());
+		}
 		
 		return response;
 	}

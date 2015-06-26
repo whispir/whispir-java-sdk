@@ -23,6 +23,7 @@ public class WhispirSDKTest {
 	// Message content variables for the tests
 	protected static final String TEST_RECIPIENT = "";
 	protected static final String TEST_WORKSPACE_ID = "";
+	protected static final String TEST_WORKSPACE_NAME = "";
 	protected static final String TEST_MESSAGE_SUBJECT = "";
 	protected static final String TEST_MESSAGE_BODY = "";
 
