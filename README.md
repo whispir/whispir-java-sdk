@@ -1,12 +1,19 @@
-# Updates 7/06/2015 - Release 2.1.0
+## Updates 26/06/2015 - Release 2.2.0
 
-## Added the following:
+### Added the following:
+
+* Added getSingleMessage and getSingleWorkspace functions
+* Refactored some of the tests to make them run when no Test Workspace has been defined
+
+## Updates 7/06/2015 - Release 2.1.0
+
+### Added the following:
 
 * Support for Basic Proxy Authentication (thanks to a pull request by vlsinitsyn)
 * Support for Creating Scenarios
 * Support for Creating Workspaces
 
-## Refactored:
+### Refactored:
 
 * I changed the default response type to WhispirResponse from int for POST requests.  This was because I needed to get the header information for managing Scenarios and it's just a generally cleaner approach.
 
