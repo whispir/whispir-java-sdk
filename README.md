@@ -1,3 +1,9 @@
+## Updates 29/06/2015
+
+### Released to Maven Central
+
+Installation steps updated to reference Maven dependency instead of building from source.
+
 ## Updates 26/06/2015 - Release 2.2.0
 
 ### Added the following:
@@ -24,8 +30,22 @@
 
 Let me know if you've got any questions: @jordwalsh
 
+# Installing with Maven
 
-# Building/Installing the SDK
+Users can easily include the Whispir dependency in their projects using [Maven](http://maven.apache.org/).
+
+The dependency information is as follows:
+
+```xml
+<dependency>
+    <groupId>com.whispir</groupId>
+    <artifactId>sdk</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
+See the examples section below for usage instructions.
+
+# Building/Installing the SDK from Source
 
 Whispir's SDK allows Java Developers to get up and running sending messages with Whispir's API quickly.
 
@@ -68,6 +88,7 @@ import com.whispir.sdk.exceptions.WhispirSDKException;
 
 public class SDKExample {
 
+  //APIKEY, Username and Password available from whispir.io
   public static final String API_KEY = "...";
   public static final String USERNAME = "...";
   public static final String PASSWORD = "...";
