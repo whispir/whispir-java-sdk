@@ -18,8 +18,11 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -430,7 +433,17 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 		Credentials creds = new UsernamePasswordCredentials(this.username,
 				this.password);
-
+		
+		// Create AuthCache Instance
+		AuthCache authCache = new BasicAuthCache();
+		// Generate BASIC scheme object and add it to the local auth cache
+		authCache.put(this.getHost(), new BasicScheme());
+		
+		// Add AuthCache to the execution context
+		final HttpClientContext context = HttpClientContext.create();
+		context.setCredentialsProvider(credsProvider);
+		context.setAuthCache(authCache);
+		
 		if (debug) {
 			credsProvider.setCredentials(AuthScope.ANY, creds);
 		} else {
@@ -452,7 +465,7 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 				httpRequest.setConfig(this.proxy);
 			}
 
-			CloseableHttpResponse response = client.execute(httpRequest);
+			CloseableHttpResponse response = client.execute(httpRequest, context);
 
 			try {
 				statusCode = response.getStatusLine().getStatusCode();
