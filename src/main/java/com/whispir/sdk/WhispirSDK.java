@@ -402,6 +402,10 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		String scheme = getScheme(host);
 
 		url.append(scheme).append(host);
+		
+		if(this.debug) {
+			url.append("/api");
+		}
 
 		if ((workspaceId != null && !"".equals(workspaceId)) || resourceType.equals(WhispirSDKConstants.WORKSPACES_RESOURCE)) {
 			url.append("/workspaces/" + workspaceId);
@@ -521,6 +525,7 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 			}
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.err.println("Message Failed - Connection Error: "
 					+ e.getMessage());
 		} finally {
