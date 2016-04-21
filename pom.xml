@@ -101,7 +101,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.whispir.api.examples.Launcher</mainClass>
+              <mainClass>com.whispir.sdk.examples.Launcher</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
