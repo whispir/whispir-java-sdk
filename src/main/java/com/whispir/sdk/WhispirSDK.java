@@ -140,6 +140,7 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 	public void setDebugHost(String debugHost) {
 		if (!"".equals(debugHost)) {
+			debugHost = debugHost.replaceAll("/api", "");
 			this.debugHost = debugHost;
 			this.debug = true;
 		} else {
@@ -375,7 +376,7 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 		request.setHeader("Accept", header);
 	}
 
-	private String getHost() {
+	public String getHost() {
 		if (debug) {
 			return this.debugHost;
 		} else {
@@ -493,7 +494,7 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 									// Ended sleep. Continue.
 								}
 
-								response = client.execute(httpRequest);
+								response = client.execute(targetHost, httpRequest, context);
 								statusCode = response.getStatusLine()
 										.getStatusCode();
 							}
