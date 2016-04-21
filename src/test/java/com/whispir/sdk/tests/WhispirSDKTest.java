@@ -143,4 +143,15 @@ public class WhispirSDKTest {
     // HTTP401 Unauthorized Access
     assertTrue(response.getStatusCode() == 401);
   }
+  
+  @Test
+  public void testDebugHost() throws WhispirSDKException {
+    this.whispirSDK.setApikey(TEST_API_KEY);
+    this.whispirSDK.setUsername(TEST_USERNAME);
+    this.whispirSDK.setPassword(TEST_PASSWORD);
+    this.whispirSDK.setDebugHost("sandbox.whispir.com/api");
+
+    // HTTP401 Unauthorized Access
+    assertTrue(this.whispirSDK.getHost().equals("sandbox.whispir.com"));
+  }
 }
