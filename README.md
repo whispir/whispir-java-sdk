@@ -16,7 +16,7 @@ The dependency information is as follows:
 <dependency>
     <groupId>com.whispir</groupId>
     <artifactId>sdk</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 See the examples section below for usage instructions.
@@ -32,7 +32,7 @@ mvn clean install -DskipTests=true
 This will produce two JAR fies:
 
 ```shell
-/target/WhispirSDK-2.2.1-with-dependencies.jar
+/target/WhispirSDK-2.2.2-with-dependencies.jar
 /target/WhispirSDK.jar
 ```
 
@@ -168,6 +168,12 @@ Please submit any issues via GitHub, or alternatively, fix the code and submit a
 See the LICENSE.txt and refer to [Whispir's Terms of Service](http://whispir.com/terms-of-service).
 
 # Change Log
+
+## Updates April 22, 2016 - Release 2.2.2
+
+### Added the following:
+
+* Fixed a bug with DNS lookup when debugHost was being used to specify a non-production host.  This is only relevant for customers doing testing in a sandbox environment.
 
 ## Updates April 21, 2016 - Release 2.2.1
 
