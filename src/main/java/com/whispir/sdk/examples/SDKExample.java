@@ -1,11 +1,11 @@
 package com.whispir.sdk.examples;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 public class SDKExample {
 
@@ -18,6 +18,15 @@ public class SDKExample {
 
 			// INIT API object
 			WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD);
+
+			// Send async message
+			sdk.sendMessage("123456", "subject", "contents", (response, exception) -> {
+				if (exception != null) {
+					System.out.println("Request failed : " + exception.getLocalizedMessage());
+					return;
+				}
+				System.out.println("response successful : " + response.getStatusCode());
+			});
 
 			// Send the message
 			WhispirResponse response = sdk.sendMessage("61400000000",
