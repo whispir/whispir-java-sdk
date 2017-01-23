@@ -1,10 +1,13 @@
 package com.whispir.sdk;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.whispir.sdk.exceptions.WhispirSDKException;
+import com.whispir.sdk.callback.MessageCallback;
+import com.whispir.sdk.impl.MessageHelperImpl;
+import com.whispir.sdk.impl.ScenarioHelperImpl;
+import com.whispir.sdk.impl.WorkspaceHelperImpl;
+import com.whispir.sdk.interfaces.MessageHelper;
+import com.whispir.sdk.interfaces.ScenarioHelper;
+import com.whispir.sdk.interfaces.WorkspaceHelper;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpHost;
@@ -14,27 +17,20 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.whispir.sdk.exceptions.WhispirSDKException;
-import com.whispir.sdk.impl.MessageHelperImpl;
-import com.whispir.sdk.impl.ScenarioHelperImpl;
-import com.whispir.sdk.impl.WorkspaceHelperImpl;
-import com.whispir.sdk.interfaces.MessageHelper;
-import com.whispir.sdk.interfaces.ScenarioHelper;
-import com.whispir.sdk.interfaces.WorkspaceHelper;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * WhispirAPI
@@ -170,6 +166,20 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 					proxyUsername, proxyPassword);
 		}
 	}
+
+	// ***************************************************
+	// * Messages SDK Methods
+	// ***************************************************
+
+	public void sendMessage(String recipient, String subject, String content, MessageCallback callback) {
+        // TODO : Implement it.
+	}
+
+	public void sendMessage(String workspaceId, String recipient,
+									   String subject, String content, MessageCallback callback) {
+		// TODO : Implement it.
+	}
+
 
 	// ***************************************************
 	// * Messages SDK Methods
