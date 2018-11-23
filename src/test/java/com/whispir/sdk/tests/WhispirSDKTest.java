@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.whispir.sdk.WhispirEndPoints;
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
@@ -19,7 +20,8 @@ public class WhispirSDKTest {
   protected static final String TEST_API_KEY = "";
   protected static final String TEST_USERNAME = "";
   protected static final String TEST_PASSWORD = "";
-
+  protected static final WhispirEndPoints APIENDPOINT = null;
+  
   // Message content variables for the tests
   protected static final String TEST_RECIPIENT = "";
   protected static final String TEST_WORKSPACE_ID = "";
@@ -36,7 +38,7 @@ public class WhispirSDKTest {
   protected static final boolean PROXY_HTTPS_ENABLED = false;
   protected static final String PROXY_USERNAME = "";
   protected static final String PROXY_PASSWORD = "";
-
+	
   //Squid Proxy Error Code is 407 (Proxy Authentication Required)
   protected static final int PROXY_ERROR_CODE = 407;
 
@@ -47,7 +49,7 @@ public class WhispirSDKTest {
           TEST_PASSWORD, DEBUG_HOST);
     } else {
       this.whispirSDK = new WhispirSDK(TEST_API_KEY, TEST_USERNAME,
-          TEST_PASSWORD);
+          TEST_PASSWORD, APIENDPOINT);
     }
 
     if (!"".equals(PROXY_HOST)) {
@@ -155,3 +157,4 @@ public class WhispirSDKTest {
     assertTrue(this.whispirSDK.getHost().equals("sandbox.whispir.com"));
   }
 }
+

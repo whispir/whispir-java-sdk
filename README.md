@@ -16,7 +16,7 @@ The dependency information is as follows:
 <dependency>
     <groupId>com.whispir</groupId>
     <artifactId>sdk</artifactId>
-    <version>2.2.2</version>
+    <version>2.3.0</version>
 </dependency>
 ```
 See the examples section below for usage instructions.
@@ -77,9 +77,11 @@ package com.whispir.sdk.examples;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.whispir.sdk.WhispirEndPoints;
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
+
 
 public class SDKExample {
 
@@ -87,12 +89,14 @@ public class SDKExample {
   public static final String API_KEY = "...";
   public static final String USERNAME = "...";
   public static final String PASSWORD = "...";
+  public static final WhispirEndPoints APIENDPOINT = WhispirEndPoints.AU;
+
 
   public static void main(String[] args) {
     try {
 
       // INIT API object
-      WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD);
+      WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD, APIENDPOINT);
 
       // Send the message
       WhispirResponse response = sdk.sendMessage("61400000000",
@@ -168,6 +172,13 @@ Please submit any issues via GitHub, or alternatively, fix the code and submit a
 See the LICENSE.txt and refer to [Whispir's Terms of Service](http://whispir.com/terms-of-service).
 
 # Change Log
+
+## Updates November 23, 2018 - Release 2.3.0
+
+### Added the following:
+
+* Updated the SDK to handle the API gateway changes. You would now be able to connect to the regional api gateways
+* Upgraded pom.xml; org.apache.httpcomponents:httpclient to now use version 4.3.6 or later to fix the vulnerability described in CVE-2015-5262
 
 ## Updates April 22, 2016 - Release 2.2.2
 

@@ -3,21 +3,22 @@ package com.whispir.sdk.examples;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.whispir.sdk.WhispirEndPoints;
 import com.whispir.sdk.WhispirResponse;
 import com.whispir.sdk.WhispirSDK;
 import com.whispir.sdk.exceptions.WhispirSDKException;
 
 public class SDKExample {
 
-	public static final String API_KEY = "...";
-	public static final String USERNAME = "...";
-	public static final String PASSWORD = "...";
-
+	public static final String API_KEY = "";
+	public static final String USERNAME = "";
+	public static final String PASSWORD = "";
+	public static final WhispirEndPoints APIENDPOINT = WhispirEndPoints.AU;
 	public static void main(String[] args) {
 		try {
 
 			// INIT API object
-			WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD);
+			WhispirSDK sdk = new WhispirSDK(API_KEY, USERNAME, PASSWORD, APIENDPOINT);
 
 			// Send the message
 			WhispirResponse response = sdk.sendMessage("61400000000",
@@ -75,3 +76,4 @@ public class SDKExample {
 		}
 	}
 }
+

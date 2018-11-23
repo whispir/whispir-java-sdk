@@ -46,6 +46,8 @@ import com.whispir.sdk.interfaces.WorkspaceHelper;
  * @author Jordan Walsh
  * @version 1.0
  * 
+ * @author Sanjeev Mandalapu
+ * @version 2.0
  */
 
 public class WhispirSDK implements MessageHelper, WorkspaceHelper,
@@ -69,6 +71,9 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 	WorkspaceHelper workspaceHelper;
 	ScenarioHelper scenarioHelper;
 
+	// endpoint
+	private WhispirEndPoints APIEndPoint;
+
 	@SuppressWarnings("unused")
 	private WhispirSDK() {
 	}
@@ -84,9 +89,32 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 	 * @param password
 	 */
 
-	public WhispirSDK(String apikey, String username, String password)
+//	public WhispirSDK(String apikey, String username, String password)
+//			throws WhispirSDKException {
+//		this(apikey, username, password, "");
+//	}
+
+	public WhispirSDK(String apikey, String username, String password, WhispirEndPoints EndPoint)
 			throws WhispirSDKException {
-		this(apikey, username, password, "");
+		
+		if (apikey.equals(null) || username.equals(null)
+				|| password.equals(null)) {
+			throw new WhispirSDKException(WhispirSDKConstants.NO_AUTH_ERROR);
+		}
+
+		if ("".equals(apikey) || "".equals(username) || "".equals(password)) {
+			throw new WhispirSDKException(WhispirSDKConstants.NO_AUTH_ERROR);
+		}
+
+		this.apikey = apikey;
+		this.username = username;
+		this.password = password;
+		this.proxyEnabled = false;
+		this.proxyCredentials = null;
+		this.APIEndPoint = EndPoint;
+	
+
+		initHelpers();
 	}
 
 	/**
@@ -374,13 +402,14 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 
 		request.setHeader("Content-Type", header);
 		request.setHeader("Accept", header);
+		request.setHeader("x-api-key", this.apikey);
 	}
 
 	public String getHost() {
 		if (debug) {
 			return this.debugHost;
 		} else {
-			return WhispirSDKConstants.API_HOST;
+			return String.format("api.%s.whispir.com", APIEndPoint.toString());
 		}
 	}
 
@@ -542,3 +571,4 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 	}
 
 }
+
