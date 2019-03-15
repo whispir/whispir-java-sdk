@@ -505,30 +505,19 @@ public class WhispirSDK implements MessageHelper, WorkspaceHelper,
 			try {
 				statusCode = response.getStatusLine().getStatusCode();
 
-				if (statusCode == 403) {
-					// Check the headers to see if it was an over QPS issue
+				if (statusCode == 429) {
 
-					Header[] h = response.getHeaders("X-Mashery-Error-Code");
-
-					if (h != null && h.length > 0) {
-
-						for (int i = 0; i < h.length; i++) {
-							if ("ERR_403_DEVELOPER_OVER_QPS".equals(h[i]
-									.getValue())) {
-
-								// Wait for 1 second and try the request again.
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									// Ended sleep. Continue.
-								}
-
-								response = client.execute(targetHost, httpRequest, context);
-								statusCode = response.getStatusLine()
-										.getStatusCode();
-							}
-						}
+					// Wait for 1 second and try the request again.
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// Ended sleep. Continue.
 					}
+
+					response = client.execute(targetHost, httpRequest, context);
+					statusCode = response.getStatusLine()
+							.getStatusCode();
+							
 				}
 
 				wr.setStatusCode(statusCode);
