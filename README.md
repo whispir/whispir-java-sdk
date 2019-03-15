@@ -4,7 +4,7 @@ Whispir's SDK allows Java Developers to get up and running with Whispir's API qu
 
 Follow the instructions below to include the dependencies in your project.
 
-If you've got any questions feel free to tweet us at @jordwalsh or @msanj2ev.
+If you've got any questions feel free to raise a Issue or fix an issue using the Pull requests
 
 ## Installing with Maven
 
